@@ -1,7 +1,6 @@
 """The EMA band, the trend screen and the entry signal.
 
-Clean re-implementation of the rules of SEE Lab (2026). `tests/` check the building
-blocks; run.py checks the full score matrix against a reference when one is supplied.
+Equations (1)-(3) of the paper. `tests/` check the building blocks.
 """
 from __future__ import annotations
 

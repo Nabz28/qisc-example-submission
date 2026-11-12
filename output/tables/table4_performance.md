@@ -1,4 +1,4 @@
-| Measure | Full sample | Pre-design | Design | QISC out-of-sample |
+| Measure | Full sample | Held-out | Development | QISC out-of-sample |
 |---|---|---|---|---|
 | Growth per year (CAGR) | +12.4% | +6.3% | +17.8% | +10.7% |
 | S&P 500 growth per year | +10.8% | +7.5% | +14.4% | +16.1% |

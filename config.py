@@ -21,12 +21,12 @@ BENCHMARK = "SPY"
 GAP_LIMIT = 3.0                       # an open more than 3x away from its own close is a data error
 
 # ---------------------------------------------------------------- sample periods (Table 1)
-DESIGN_START = pd.Timestamp("2017-07-01")   # the original rules were designed on data from here on
+DEV_START = pd.Timestamp("2017-07-01")      # the rules were developed on data from here on
 OOS_START = pd.Timestamp("2025-01-01")      # QISC out-of-sample window: the final 24 months
-PERIODS = {"pre": (SIM_START, DESIGN_START), "design": (DESIGN_START, OOS_START), "oos": (OOS_START, None)}
-SEE_WINDOW = (pd.Timestamp("2017-07-03"), pd.Timestamp("2026-09-18"))   # sample of SEE Lab (2026)
+PERIODS = {"heldout": (SIM_START, DEV_START), "dev": (DEV_START, OOS_START), "oos": (OOS_START, None)}
+DEV_WINDOW = (pd.Timestamp("2017-07-03"), pd.Timestamp("2026-09-18"))   # full development sample
 
-# ---------------------------------------------------------------- trend screen (SEE Lab, 2026)
+# ---------------------------------------------------------------- trend screen
 FAST, SLOW = 20, 100                  # EMA spans: the run and the regime
 MAX_BELOW = 10                        # more consecutive closes under the fast EMA end a run
 MIN_RUN_BARS = 60
@@ -46,15 +46,15 @@ TOUCH_TOL = 0.01                      # a close up to 1% above the band counts a
 HOLD = 63                             # sell at the open after this many sessions
 COOLDOWN = 5                          # a stock sold cannot be bought again within this many sessions
 
-# ---------------------------------------------------------------- the QISC book
+# ---------------------------------------------------------------- the baseline portfolio (QISC constraints)
 SLOTS = 10                            # casebook: at most 10% of NAV per name
 LIQ_QISC = 2e6                        # casebook: position <= 5% of 60-day median traded value ($100k / 5%)
 COST = 0.0010                         # per side: 5 bp fees + 5 bp slippage (casebook minimum, US)
 CAPITAL = 1_000_000                   # notional, USD (casebook)
 
-# ---------------------------------------------------------------- the original specification (replication)
-SEE_SLOTS = 5
-SEE_COST = 0.0005
+# ---------------------------------------------------------------- the concentrated variant (Table 3)
+CONC_SLOTS = 5                        # five positions of 20%, $0.5M liquidity screen only
+CONC_COST = 0.0005
 
 # ---------------------------------------------------------------- statistics
 BOOT = 2000                           # bootstrap draws, whole months resampled

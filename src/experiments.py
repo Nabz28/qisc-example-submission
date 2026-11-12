@@ -29,7 +29,7 @@ def scores(strict: bool = False) -> pd.DataFrame:
 
 
 def market(span: int = C.BAND_SPAN, strict: bool = False, liq: float = C.LIQ_QISC) -> tuple[Market, pd.Series]:
-    """The simulation inputs. liq = C.LIQ_QISC for the QISC book, 0 for the original specification."""
+    """The simulation inputs. liq = C.LIQ_QISC for the baseline portfolio, 0 for the concentrated variant."""
     px, bench = D.load_wide(("open", "close", "volume"))
     close, opn, vol = px["close"], px["open"], px["volume"]
     sc = scores(strict).reindex(columns=close.columns, fill_value=0.0)
@@ -84,15 +84,15 @@ def run_all() -> dict:
     R = {"meta": dict(start=str(m.dates[0].date()), end=str(m.dates[-1].date()), stocks=int(m.score.shape[1]),
                       scored_per_day=float((m.score > 0).sum(1).mean()))}
 
-    # 1. replication: original rules (5 slots, $0.5M, 5 bp), original window and full sample
+    # 1. the concentrated variant (5 positions, $0.5M, 5 bp): development sample and full sample
     mo, _ = market(liq=0.0)
-    eq, tr, _, R["replication"] = book(mo, bench, *C.SEE_WINDOW, slots=C.SEE_SLOTS, cost=C.SEE_COST)
-    tr.to_csv(out / "trades_replication.csv", index=False)
-    R["original_full"] = book(mo, bench, slots=C.SEE_SLOTS, cost=C.SEE_COST)[3]
+    eq, tr, _, R["conc_dev"] = book(mo, bench, *C.DEV_WINDOW, slots=C.CONC_SLOTS, cost=C.CONC_COST)
+    tr.to_csv(out / "trades_concentrated.csv", index=False)
+    R["conc_full"] = book(mo, bench, slots=C.CONC_SLOTS, cost=C.CONC_COST)[3]
     del mo
-    log("replication", f"{R['replication']['cagr']:+.1%}", R["replication"]["trades"], "trades")
+    log("concentrated variant", f"{R['conc_dev']['cagr']:+.1%}", R["conc_dev"]["trades"], "trades")
 
-    # 2. the QISC book
+    # 2. the baseline portfolio (QISC-compliant)
     eq, tr, od, R["main"] = book(m, bench)
     eq.to_csv(out / "equity.csv")
     tr.to_csv(out / "trades.csv", index=False)
@@ -103,7 +103,7 @@ def run_all() -> dict:
     ye = ye / pd.concat([pd.Series([eq.iloc[0]]), ye.iloc[:-1]]).values - 1
     ys = ys / pd.concat([pd.Series([sp.iloc[0]]), ys.iloc[:-1]]).values - 1
     pd.DataFrame({"system": ye, "benchmark": ys}).to_csv(out / "yearly.csv")
-    log("QISC book", f"{R['main']['cagr']:+.1%}")
+    log("baseline portfolio", f"{R['main']['cagr']:+.1%}")
 
     # 3. event study
     ev = EV.events(m)
@@ -158,7 +158,7 @@ def run_all() -> dict:
     mr = m.with_(score=np.where(on[:, None], m.score, 0.0))
     R["regime"], R["regime_period"], R["regime_share_on"] = book(mr, bench)[3], by_period(mr, bench), float(on.mean())
     del mr
-    for tag, first, end in (("pre", "2007-01-01", C.DESIGN_START), ("design", "2017-07-01", C.OOS_START)):
+    for tag, first, end in (("heldout", "2007-01-01", C.DEV_START), ("dev", "2017-07-01", C.OOS_START)):
         R[f"starts_{tag}"] = []
         for k in range(12):
             a = pd.Timestamp(first) + pd.DateOffset(months=k)

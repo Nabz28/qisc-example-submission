@@ -236,7 +236,7 @@ figcaption b { font-weight: 700; }
 a { color: inherit; text-decoration: none; }
 code { font-family: Consolas, monospace; font-size: 0.86em; }
 h2.refhead { break-before: page; margin-top: 0; }
-p.ref { text-indent: -1.5em; padding-left: 1.5em; font-size: 10pt; text-align: left; margin-bottom: 1.4mm; line-height: 1.35; }
+p.ref { text-indent: -1.5em; padding-left: 1.5em; font-size: 9.5pt; text-align: left; margin-bottom: 1.1mm; line-height: 1.3; }
 h2.unnumbered + p, h2 + p, h3 + p { text-indent: 0; }
 """
 

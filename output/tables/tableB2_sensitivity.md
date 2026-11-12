@@ -1,4 +1,4 @@
-| Parameter | Value | Trades | Per year | Worst drawdown | Sharpe | CAGR ÷ drawdown | Pre-design | Design | QISC OOS |
+| Parameter | Value | Trades | Per year | Worst drawdown | Sharpe | CAGR ÷ drawdown | Held-out | Development | QISC OOS |
 |---|---|---|---|---|---|---|---|---|---|
 | slots | 3.0 | 217 | +7.2% | −87% | 0.38 | 0.08 | −0.14 | 0.59 | 0.68 |
 | slots | 5.0 | 360 | +12.8% | −71% | 0.52 | 0.18 | 0.03 | 0.31 | 0.64 |

@@ -23,7 +23,7 @@ plt.rcParams.update({
     "figure.dpi": 300, "savefig.dpi": 300, "savefig.bbox": "tight", "savefig.pad_inches": 0.02,
     "axes.titlelocation": "left", "axes.titleweight": "bold", "legend.frameon": False,
 })
-PERIODS = [("2007-01-02", "2017-07-01", "Pre-design period"), ("2017-07-01", "2025-01-01", "Design period"),
+PERIODS = [("2007-01-02", "2017-07-01", "Held-out period"), ("2017-07-01", "2025-01-01", "Development period"),
            ("2025-01-01", None, "QISC\nout-of-sample")]
 pct = lambda d=0: mt.PercentFormatter(1.0, decimals=d)
 
@@ -98,7 +98,7 @@ def fig_equity(eq, spy):
     sp = sp / sp.iloc[0]
     fig, (a, b) = plt.subplots(2, 1, figsize=(W, 3.7), sharex=True, gridspec_kw={"height_ratios": [2.3, 1]})
     shade(a, eq.index[-1])
-    a.plot(eq.index, eq, color=NAVY, lw=1.3, label="QISC book: EMA20 band system, 10 slots, 10 bp per side")
+    a.plot(eq.index, eq, color=NAVY, lw=1.3, label="EMA20 band strategy (10 positions, 10 bp per side)")
     a.plot(sp.index, sp, color=GREY, lw=1.0, ls="--", label="S&P 500 (SPY, total return)")
     hi_first = eq.iloc[-1] >= sp.iloc[-1]
     for s, up in ((eq, hi_first), (sp, not hi_first)):
@@ -178,8 +178,8 @@ def fig_robust(R):
         ax.plot(xi, [r["ratio"] for r in rows], color=NAVY, marker="o", ms=3.5, lw=1.2, label="full period")
         ax.plot(xi, [r["by_period"]["oos"] for r in rows], color=RED, marker="s", ms=3, lw=0.9, ls=":",
                 label="QISC out-of-sample")
-        ax.plot(xi, [r["by_period"]["pre"] for r in rows], color=GREY, marker="^", ms=3, lw=0.9, ls="--",
-                label="pre-design")
+        ax.plot(xi, [r["by_period"]["heldout"] for r in rows], color=GREY, marker="^", ms=3, lw=0.9, ls="--",
+                label="held-out decade")
         ax.set_xticks(xi, [f"{v:.2%}" if fmt else f"{v:g}" for v in xs], fontsize=7.3)
         ax.set_xlabel(lab)
         ax.axhline(0, color=INK, lw=0.4)

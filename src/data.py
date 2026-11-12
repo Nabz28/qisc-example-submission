@@ -61,7 +61,7 @@ def screener(refresh: bool = False) -> pd.DataFrame:
 
 
 def excluded_tickers() -> set[str]:
-    """The original code's instrument filter: keep US companies, drop closed-end funds.
+    """Instrument filter: keep US companies, drop closed-end funds.
     Names missing from the screener are kept (they may have been delisted)."""
     u = pd.read_csv(C.DATA / "universe.csv")
     s = screener()

@@ -28,15 +28,16 @@ def _save(df: pd.DataFrame, name: str):
 
 def tables(R: dict) -> dict:
     C.TABLES.mkdir(parents=True, exist_ok=True)
-    rep, ori = R["replication"], R["original_full"]
-    _save(pd.DataFrame([
-        ["Trades", 170, rep["trades"]], ["Win rate", "53%", U(rep["win"])], ["Growth per year", "+41.9%", P(rep["cagr"])],
-        ["Worst drawdown", "−41%", P(rep["maxdd"], 0)], ["CAGR ÷ max drawdown", "1.01", F(rep["ratio"])],
-        ["$1 becomes", "$25.0", f"${rep['final']:.1f}"],
-        ["Monthly return above SPY [95%]", "+2.44% [+0.54%, +4.54%]", f"{P(rep['excess_m'], 2)} {CI(rep['excess_ci'])}"],
-        ["S&P 500 growth per year", "+15.0%", P(rep["bench_cagr"])]], columns=["Measure", "SEE Lab (2026)", "Replication"]),
-        "table3_replication")
-    cols = {"Full sample": R["main"], **{k: R["periods"][k] for k in ("pre", "design", "oos")}}
+    a, b, c = R["conc_dev"], R["conc_full"], R["main"]
+    r3 = [("Trades", lambda s: s["trades"]), ("Win rate", lambda s: U(s["win"])), ("Growth per year", lambda s: P(s["cagr"])),
+          ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])), ("Sharpe ratio (SPY)", lambda s: f"{F(s['sharpe'])} ({F(s['bench_sharpe'])})"),
+          ("Worst drawdown (SPY)", lambda s: f"{P(s['maxdd'], 0)} ({P(s['bench_dd'], 0)})"),
+          ("Monthly return above SPY [95%]", lambda s: f"{P(s['excess_m'], 2)} {CI(s['excess_ci'])}"),
+          ("$1 becomes (SPY)", lambda s: f"${s['final']:.2f} (${s['bench_final']:.2f})")]
+    _save(pd.DataFrame([[lab, f(a), f(b), f(c)] for lab, f in r3],
+                       columns=["Measure", "Concentrated, 2017-2026", "Concentrated, 2007-2026", "Baseline, 2007-2026"]),
+          "table3_concentration")
+    cols = {"Full sample": R["main"], **{k: R["periods"][k] for k in ("heldout", "dev", "oos")}}
     rows = [("Growth per year (CAGR)", lambda s: P(s["cagr"])), ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])),
             ("Monthly return above SPY", lambda s: P(s["excess_m"], 2)), ("95% interval", lambda s: CI(s["excess_ci"])),
             ("Alpha per year", lambda s: P(s["alpha_ann"])), ("$1 becomes (SPY)", lambda s: f"${s['final']:.2f} (${s['bench_final']:.2f})"),
@@ -47,7 +48,7 @@ def tables(R: dict) -> dict:
             ("Average win / average loss", lambda s: f"{P(s['avg_win'])} / {P(s['avg_loss'])}"),
             ("Mean / median trade", lambda s: f"{P(s['mean_trade'])} / {P(s['median_trade'])}")]
     _save(pd.DataFrame([[lab] + [f(s) for s in cols.values()] for lab, f in rows],
-                       columns=["Measure", "Full sample", "Pre-design", "Design", "QISC out-of-sample"]), "table4_performance")
+                       columns=["Measure", "Full sample", "Held-out", "Development", "QISC out-of-sample"]), "table4_performance")
     ev = {(e["kind"], e["h"]): e for e in R["events"]}
     _save(pd.DataFrame([[f"{h} days", P(ev["touch", h]["mean"]), f"{P(ev['touch', h]['excess'])} {CI(ev['touch', h]['excess_ci'], 1)}",
                          P(ev["no_touch", h]["mean"]), f"{P(ev['no_touch', h]['excess'])} {CI(ev['no_touch', h]['excess_ci'], 1)}",
@@ -61,20 +62,20 @@ def tables(R: dict) -> dict:
     for key, col in (("slots", "K"), ("hold", "H"), ("costs", "cost")):
         for s in R[key]:
             sens.append([key, s[col], s["trades"], P(s["cagr"]), P(s["maxdd"], 0), F(s["sharpe"]), F(s["ratio"])]
-                        + [F(s["by_period"][p]) for p in ("pre", "design", "oos")])
+                        + [F(s["by_period"][p]) for p in ("heldout", "dev", "oos")])
     _save(pd.DataFrame(sens, columns=["Parameter", "Value", "Trades", "Per year", "Worst drawdown", "Sharpe", "CAGR ÷ drawdown",
-                                      "Pre-design", "Design", "QISC OOS"]), "tableB2_sensitivity")
+                                      "Held-out", "Development", "QISC OOS"]), "tableB2_sensitivity")
     _save(pd.DataFrame([[f"{s['W']} days", U(s["TOL"]), s["trades"], P(s["cagr"]), P(s["maxdd"], 0), F(s["ratio"]), F(s["sharpe"])] for s in R["touch"]]
                        + [[f"EMA span {s['span']}", "1%", s["trades"], P(s["cagr"]), P(s["maxdd"], 0), F(s["ratio"]), F(s["sharpe"])] for s in R["span"]],
                        columns=["Window / span", "Tolerance", "Trades", "Per year", "Worst drawdown", "CAGR ÷ drawdown", "Sharpe"]), "tableB3_entry")
     st = lambda lab, s: [lab, P(s["cagr"]), P(s["maxdd"], 0), F(s["sharpe"]), f"{P(s['excess_m'], 2)} {CI(s['excess_ci'], 1)}"]
     rng = lambda k, f: f"{P(min(r[f] for r in R[k]))} to {P(max(r[f] for r in R[k]))}"
-    _save(pd.DataFrame([st("QISC book", R["main"]), st("Execution one day later", R["delay"]),
+    _save(pd.DataFrame([st("Baseline portfolio", R["main"]), st("Execution one day later", R["delay"]),
                         st("Without the five largest contributors", R["drop_top5"]), st("Bought without a touch", R["no_touch"]),
                         st("Pullbacks counted only once confirmed", R["strict"]),
                         st("New positions only while SPY > 200-day average", R["regime"]),
-                        ["Twelve start months, pre-design", rng("starts_pre", "cagr"), rng("starts_pre", "maxdd"), "", ""],
-                        ["Twelve start months, design", rng("starts_design", "cagr"), rng("starts_design", "maxdd"), "", ""]],
+                        ["Twelve start months, held-out decade", rng("starts_heldout", "cagr"), rng("starts_heldout", "maxdd"), "", ""],
+                        ["Twelve start months, development period", rng("starts_dev", "cagr"), rng("starts_dev", "maxdd"), "", ""]],
                        columns=["Test", "Per year", "Worst drawdown", "Sharpe", "Monthly excess [95%]"]), "table6_stress")
     # deflated Sharpe ratio over every variant reported
     eq = pd.read_csv(C.OUTPUT / "series" / "equity.csv", index_col=0, parse_dates=True).iloc[:, 0]
@@ -125,7 +126,7 @@ def run() -> None:
     comp = outputs()
     json.dump(num, open(C.OUTPUT / "numbers.json", "w"), indent=1)
     m = R["main"]
-    print(f"  QISC book: {m['cagr']:+.1%} a year (S&P 500 {m['bench_cagr']:+.1%}), Sharpe {m['sharpe']:.2f}, "
+    print(f"  baseline portfolio: {m['cagr']:+.1%} a year (S&P 500 {m['bench_cagr']:+.1%}), Sharpe {m['sharpe']:.2f}, "
           f"worst drawdown {m['maxdd']:.0%}, deflated Sharpe {num['dsr']:.3f} over {num['n_trials']} trials")
     print(f"  compliance: max weight {comp['max_weight']:.3f}, avg holding {comp['avg_holding_days']:.0f} days, "
           f"{comp['entries_within_5pct_adv']:.0%} of entries within 5% of ADV")
