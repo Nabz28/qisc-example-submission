@@ -4,7 +4,7 @@ Universe: every security in the NASDAQ Trader symbol directory listed on NASDAQ,
 NYSE American or NYSE Arca, excluding ETFs, test issues, warrants, rights, units,
 preferreds and notes. Prices: Yahoo Finance daily OHLCV, split- and dividend-adjusted.
 
-Survivors only: the directory lists stocks that trade today (see the paper, Section 3.4).
+Survivors only: the directory lists stocks that trade today (see the paper, Section 3.3).
 """
 from __future__ import annotations
 
