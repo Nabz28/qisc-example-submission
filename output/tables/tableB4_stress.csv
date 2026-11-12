@@ -1,0 +1,9 @@
+Test,Per year,Worst drawdown,Sharpe,Monthly excess [95%]
+Baseline portfolio,+22.1%,−43%,0.75,"+0.97% [−0.5%, +2.5%]"
+Execution one day later,+20.2%,−46%,0.70,"+0.88% [−0.6%, +2.6%]"
+Without the five largest contributors,+12.0%,−45%,0.52,"+0.10% [−1.1%, +1.4%]"
+Bought without a touch,+17.3%,−57%,0.61,"+0.62% [−0.8%, +2.1%]"
+Pullbacks counted only once confirmed,+21.1%,−50%,0.73,"+0.92% [−0.6%, +2.5%]"
+New positions only while SPY > 200-day average,+14.7%,−52%,0.57,"+0.40% [−1.1%, +2.0%]"
+Twelve start months in 2015,+18.3% to +26.7%,−47% to −42%,,
+Twelve start months in 2007 (to 2014),−4.8% to +5.2%,−69% to −49%,,

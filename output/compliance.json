@@ -5,9 +5,9 @@
  "avg_holding_days": 63.0,
  "execution": "signal at close t, fill at open t+1",
  "cost_model": "fees 0.05% + max(0.05%, 1% x sqrt(order / ADV)) per side",
- "avg_cost_per_side": 0.001699264896209454,
- "entries": 366,
- "entries_within_5pct_adv": 0.9972677595628415,
- "median_order_share_of_adv": 0.010898663603689993,
+ "avg_cost_per_side": 0.0018295945477059172,
+ "entries": 225,
+ "entries_within_5pct_adv": 0.9955555555555555,
+ "median_order_share_of_adv": 0.018086795811208912,
  "note": "Each order is capped at 5% of the 60-day median traded value on NAV at the time of the order."
 }

@@ -21,10 +21,13 @@ BENCHMARK = "SPY"
 GAP_LIMIT = 3.0                       # an open more than 3x away from its own close is a data error
 
 # ---------------------------------------------------------------- sample periods (Table 1)
-DEV_START = pd.Timestamp("2017-07-01")      # the rules were developed on data from here on
+MAIN_START = pd.Timestamp("2015-01-01")     # main sample: the casebook's backtest period, 2015 to today
 OOS_START = pd.Timestamp("2025-01-01")      # QISC out-of-sample window: the final 24 months
-PERIODS = {"heldout": (SIM_START, DEV_START), "dev": (DEV_START, OOS_START), "oos": (OOS_START, None)}
-DEV_WINDOW = (pd.Timestamp("2017-07-03"), pd.Timestamp("2026-09-18"))   # full development sample
+DEV_START = pd.Timestamp("2017-07-01")      # the rules were developed on data from here ...
+DEV_WINDOW = (pd.Timestamp("2017-07-03"), pd.Timestamp("2026-09-18"))   # ... to here
+FORWARD_START = pd.Timestamp("2026-09-19")  # forward test: every close after the rules were fixed
+PERIODS = {"insample": (MAIN_START, OOS_START), "oos": (OOS_START, None),
+           "history": (SIM_START, MAIN_START)}   # history: 2007-2014, before the sample, never used in development
 
 # ---------------------------------------------------------------- trend screen
 FAST, SLOW = 20, 100                  # EMA spans: the run and the regime

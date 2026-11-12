@@ -11,6 +11,7 @@ import config as C
 from src import data as D
 from src import signals as SG
 from src import events as EV
+from src import regime as RG
 from src.backtest import Market, simulate, stats
 
 
@@ -50,7 +51,8 @@ def market(span: int = C.BAND_SPAN, strict: bool = False, liq: float = C.LIQ_QIS
 
 
 # ---------------------------------------------------------------- helpers
-def book(m, bench, start=None, end=None, slots=C.SLOTS, **kw):
+def book(m, bench, start=C.MAIN_START, end=None, slots=C.SLOTS, **kw):
+    """A fresh portfolio, starting in cash on `start` (default: the main sample, 2015 to today)."""
     eq, tr, od = simulate(m, slots=slots, start=start, end=end, **kw)
     return eq, tr, od, stats(eq, tr, bench, slots)
 
@@ -61,16 +63,38 @@ def by_period(m, bench, **kw):
 
 def clean(o):
     if isinstance(o, dict):
-        return {k: clean(v) for k, v in o.items()}
+        return {str(k): clean(v) for k, v in o.items()}
     if isinstance(o, (list, tuple)):
         return [clean(v) for v in o]
     if isinstance(o, (float, np.floating)):
         return None if not np.isfinite(o) else float(o)
-    if isinstance(o, np.integer):
-        return int(o)
+    if isinstance(o, (np.integer, np.bool_)):
+        return o.item()
     if hasattr(o, "isoformat"):
         return o.isoformat()
     return o
+
+
+def forward_positions(m, tr, od) -> pd.DataFrame:
+    """Every position held after the rules were fixed (forward test): closed trades and open positions."""
+    rows = []
+    for o in od[od.weight > 0].itertuples():
+        i = int(np.searchsorted(m.dates, pd.Timestamp(o.date))) + 1
+        if i >= len(m.dates):
+            continue
+        fill, j = m.dates[i], list(m.cols).index(o.ticker)
+        t = tr[(tr.sym == o.ticker) & (pd.to_datetime(tr.entry) == fill)] if len(tr) else tr
+        if len(t):
+            x = t.iloc[0]
+            if pd.Timestamp(x.exit) <= C.DEV_WINDOW[1]:
+                continue
+            rows.append(dict(sym=o.ticker, entry=fill, buy=x.buy, exit=pd.Timestamp(x.exit), price=x.sell,
+                             ret=x.ret, open=False))
+        else:
+            px, buy = m.close[-1, j], m.open[i, j]
+            rows.append(dict(sym=o.ticker, entry=fill, buy=buy, exit=pd.NaT, price=px, open=True,
+                             ret=px / buy / (1 + C.FEE + C.IMPACT_MIN) - 1))     # marked at the last close
+    return pd.DataFrame(rows).sort_values("entry").reset_index(drop=True)
 
 
 # ---------------------------------------------------------------- the battery
@@ -84,11 +108,25 @@ def run_all() -> dict:
     R = {"meta": dict(start=str(m.dates[0].date()), end=str(m.dates[-1].date()), stocks=int(m.score.shape[1]),
                       scored_per_day=float((m.score > 0).sum(1).mean()))}
 
-    # 1. the development sample on its own, and a diversified ten-position version (Table 3)
-    eq, tr, _, R["dev_window"] = book(m, bench, *C.DEV_WINDOW)
-    tr.to_csv(out / "trades_dev_window.csv", index=False)
+    # 1. the portfolio over the main sample, 2015 to today, and by period
+    eq, tr, od, R["main"] = book(m, bench)
+    eq.to_csv(out / "equity.csv")
+    tr.to_csv(out / "trades.csv", index=False)
+    od.to_csv(out / "orders.csv", index=False)
+    R["periods"] = by_period(m, bench)
+    for k, (a, b) in C.PERIODS.items():                 # fresh portfolio per period (Figure A.2)
+        book(m, bench, a, b)[0].to_csv(out / f"equity_{k}.csv")
+    # forward test and 2026 to date: slices of the running book, from the last close before each window
+    R["forward"] = dict(RG.slice_stats(eq, bench, C.DEV_WINDOW[1]), first=str(C.FORWARD_START.date()),
+                        last=str(eq.index[-1].date()), days=int((eq.index >= C.FORWARD_START).sum()))
+    R["ytd"] = RG.slice_stats(eq, bench, pd.Timestamp("2025-12-31"))
+    forward_positions(m, tr, od).to_csv(out / "forward_positions.csv", index=False)
+    log("portfolio 2015-2026", f"{R['main']['cagr']:+.1%}", "| forward", f"{R['forward']['final'] - 1:+.1%}",
+        f"(SPY {R['forward']['bench_final'] - 1:+.1%})")
+
+    # 2. the development window on its own, ten positions, and the cost and liquidity decomposition (Tables 3-4)
+    R["dev_window"] = book(m, bench, *C.DEV_WINDOW)[3]
     R["ten_positions"] = book(m, bench, slots=10)[3]
-    # how the casebook's cost and liquidity rules change the result (Table 4)
     frac, R["decomposition"] = C.MAX_ADV_FRAC, []
     for label, f, kw in (("Flat 10 bp per side, no liquidity cap", 1e9, dict(cost=0.001)),
                          ("Impact costs, no liquidity cap", 1e9, {}),
@@ -97,36 +135,46 @@ def run_all() -> dict:
         C.MAX_ADV_FRAC = f
         R["decomposition"].append(dict(book(m, bench, **kw)[3], label=label))
     C.MAX_ADV_FRAC = frac
-    log("development window", f"{R['dev_window']['cagr']:+.1%}", R["dev_window"]["trades"], "trades")
+    log("development window", f"{R['dev_window']['cagr']:+.1%}")
 
-    # 2. the baseline portfolio
-    eq, tr, od, R["main"] = book(m, bench)
-    eq.to_csv(out / "equity.csv")
-    tr.to_csv(out / "trades.csv", index=False)
-    od.to_csv(out / "orders.csv", index=False)
-    R["periods"] = by_period(m, bench)
-    for k, (a, b) in C.PERIODS.items():                 # fresh portfolio per period (Figure A.2)
-        book(m, bench, a, b)[0].to_csv(out / f"equity_{k}.csv")
-    sp = bench.reindex(eq.index).ffill()
-    ye, ys = eq.resample("YE").last(), sp.resample("YE").last()
-    ye = ye / pd.concat([pd.Series([eq.iloc[0]]), ye.iloc[:-1]]).values - 1
+    # 3. the same rules run continuously from 2007: the history before the sample, and the regime analysis
+    eqc, trc, _, R["continuous"] = book(m, bench, C.SIM_START)
+    eqc.to_csv(out / "equity_continuous.csv")
+    trc.to_csv(out / "trades_continuous.csv", index=False)
+    sp = bench.reindex(eqc.index).ffill()
+    ye, ys = eqc.resample("YE").last(), sp.resample("YE").last()
+    ye = ye / pd.concat([pd.Series([eqc.iloc[0]]), ye.iloc[:-1]]).values - 1
     ys = ys / pd.concat([pd.Series([sp.iloc[0]]), ys.iloc[:-1]]).values - 1
     pd.DataFrame({"system": ye, "benchmark": ys}).to_csv(out / "yearly.csv")
-    log("baseline portfolio", f"{R['main']['cagr']:+.1%}")
+    R["windows"] = {k: RG.slice_stats(eqc, bench, a, b) for k, (a, b) in
+                    (("2007-2014", (C.SIM_START, C.MAIN_START)),
+                     ("2015-2024", (pd.Timestamp("2014-12-31"), C.OOS_START)),
+                     ("2015-2026", (pd.Timestamp("2014-12-31"), None)))}
 
-    # 3. event study
+    # 4. event study (main sample; the periods and the history in panels)
     ev = EV.events(m)
-    R["events"] = EV.event_table(ev).to_dict("records")
+    evm = ev[ev.date >= C.MAIN_START]
+    R["events"] = EV.event_table(evm).to_dict("records")
     R["events_period"] = {}
     for k, (a, b) in C.PERIODS.items():
         e = ev[(ev.date >= a) & ((ev.date < b) if b is not None else True)]
         R["events_period"][k] = EV.event_table(e).to_dict("records")
-    for k, p in EV.paths(m, ev).items():
+    for k, p in EV.paths(m, evm).items():
         p.to_csv(out / f"path_{k}.csv")
-    R["events_n"] = ev.kind.value_counts().to_dict()
+    R["events_n"] = evm.kind.value_counts().to_dict()
     log("event study", R["events_n"])
 
-    # 4-9. one change at a time
+    # 5. regime and decay (REGIME_PROTOCOL.md)
+    ind = RG.indicators(m, bench, eqc, ev)
+    ind.to_csv(out / "regime_indicators.csv")
+    R["regime_test"] = RG.conditional(ind, RG.monthly(eqc, bench))
+    R["regime_switch"] = RG.switching(eqc, bench, ind)
+    R["regime_chars"] = RG.characteristics(m, bench, trc, ev, ind)
+    RG.relative_drawdown(eqc, bench).to_csv(out / "relative_drawdown.csv")
+    RG.edge_by_month(ev).to_csv(out / "edge_by_month.csv")
+    log("regime tests", [r["key"] for r in R["regime_test"] if r["identified"]], "identified")
+
+    # 6-11. one change at a time (main sample)
     grid = [("clock", {}), ("band1", dict(band_k=1)), ("band3", dict(band_k=3)), ("band5", dict(band_k=5)),
             ("vol3", dict(vol_k=3.0)), ("vol5", dict(vol_k=5.0)), ("band3+vol3", dict(band_k=3, vol_k=3.0)),
             ("stop25", dict(stop=0.25)), ("stop40", dict(stop=0.40))]
@@ -138,7 +186,7 @@ def run_all() -> dict:
     R["costs"] = [dict(book(m, bench, cost_mult=c)[3], mult=c,
                        by_period={p: v["ratio"] for p, v in by_period(m, bench, cost_mult=c).items()})
                   for c in (0.5, 1.0, 2.0, 3.0, 5.0)]
-    log("exits, slots, holding period, costs")
+    log("exits, positions, holding period, costs")
     R["touch"] = []
     for w in (3, 5, 10):
         for tol in (0.0, 0.01, 0.02):
@@ -150,7 +198,7 @@ def run_all() -> dict:
         del m2
     log("entry parameters")
 
-    # 10-15. stress tests
+    # 12-17. stress tests (main sample)
     shift = lambda a: np.vstack([np.zeros((1, a.shape[1]), a.dtype), a[:-1]])
     md = m.with_(score=shift(m.score), signal=shift(m.signal))
     R["delay"], R["delay_period"] = book(md, bench)[3], by_period(md, bench)
@@ -166,9 +214,10 @@ def run_all() -> dict:
     sma = bench.rolling(200).mean()
     on = (bench > sma).reindex(m.dates).fillna(False).to_numpy()
     mr = m.with_(score=np.where(on[:, None], m.score, 0.0))
-    R["regime"], R["regime_period"], R["regime_share_on"] = book(mr, bench)[3], by_period(mr, bench), float(on.mean())
+    R["regime"], R["regime_period"] = book(mr, bench)[3], by_period(mr, bench)
+    R["regime_share_on"] = float(on[m.dates >= C.MAIN_START].mean())
     del mr
-    for tag, first, end in (("heldout", "2007-01-01", C.DEV_START), ("dev", "2017-07-01", C.OOS_START)):
+    for tag, first, end in (("history", "2007-01-01", C.MAIN_START), ("main", "2015-01-01", None)):
         R[f"starts_{tag}"] = []
         for k in range(12):
             a = pd.Timestamp(first) + pd.DateOffset(months=k)

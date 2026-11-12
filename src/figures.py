@@ -1,4 +1,4 @@
-"""Figures 1-6 of the paper: one style, full text width (160 mm)."""
+"""The figures of the paper and its appendices: one style, full text width (160 mm)."""
 from __future__ import annotations
 
 import json
@@ -23,16 +23,17 @@ plt.rcParams.update({
     "figure.dpi": 300, "savefig.dpi": 300, "savefig.bbox": "tight", "savefig.pad_inches": 0.02,
     "axes.titlelocation": "left", "axes.titleweight": "bold", "legend.frameon": False,
 })
-PERIODS = [("2007-01-02", "2017-07-01", "Held-out period"), ("2017-07-01", "2025-01-01", "Development period"),
-           ("2025-01-01", None, "QISC\nout-of-sample")]
+PERIODS = [("2015-01-01", "2025-01-01", "In-sample, 2015–2024"), ("2025-01-01", None, "QISC out-of-sample")]
+FWD = C.FORWARD_START
 pct = lambda d=0: mt.PercentFormatter(1.0, decimals=d)
 
 
 def shade(ax, end, labels=True, y=0.97):
-    for i, (a, b, lab) in enumerate(PERIODS):
+    """The QISC out-of-sample window in light grey, the forward test (after the rules were fixed) darker."""
+    ax.axvspan(C.OOS_START, end, color=LIGHT, alpha=0.55, lw=0, zorder=0)
+    ax.axvspan(FWD, end, color=GREY, alpha=0.35, lw=0, zorder=0)
+    for a, b, lab in PERIODS:
         b = pd.Timestamp(b) if b else end
-        if i != 1:
-            ax.axvspan(pd.Timestamp(a), b, color=LIGHT, alpha=0.55, lw=0, zorder=0)
         if labels:
             mid = pd.Timestamp(a) + (b - pd.Timestamp(a)) / 2
             ax.text(mid, 1.015, lab.replace(chr(10), " "), transform=ax.get_xaxis_transform(), ha="center",
@@ -158,8 +159,9 @@ def fig_cumulative(eq, spy):
 
 def fig_cumulative_periods(spy):
     """Figure A.2: cumulative return in each period, each portfolio starting in cash."""
-    names = {"heldout": "(a) Held-out, 2007–2017", "dev": "(b) Development, 2017–2024", "oos": "(c) QISC out-of-sample, 2025–2026"}
-    fig, axes = plt.subplots(1, 3, figsize=(W, 2.35), gridspec_kw={"width_ratios": [10.5, 7.5, 3.2]})
+    names = {"history": "(a) Before the sample, 2007–2014", "insample": "(b) In-sample, 2015–2024",
+             "oos": "(c) QISC OOS, 2025–2026"}
+    fig, axes = plt.subplots(1, 3, figsize=(W, 2.35), gridspec_kw={"width_ratios": [8, 10, 3.4]})
     for ax, (k, title) in zip(axes, names.items()):
         eq = pd.read_csv(SERIES / f"equity_{k}.csv", index_col=0, parse_dates=True).iloc[:, 0]
         sp = spy.reindex(eq.index).ffill()
@@ -170,7 +172,7 @@ def fig_cumulative_periods(spy):
         _end_labels(ax, [cs, cb], lambda v: f"{v:+.0%}")
         ax.set_title(title, fontsize=8, loc="left")
         ax.yaxis.set_major_formatter(pct())
-        ax.xaxis.set_major_locator(matplotlib.dates.YearLocator(base=3 if k == "heldout" else (2 if k == "dev" else 1)))
+        ax.xaxis.set_major_locator(matplotlib.dates.YearLocator(base=3 if k == "history" else (3 if k == "insample" else 1)))
         ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y"))
         ax.tick_params(axis="x", labelsize=7)
         ax.grid(axis="y", color="#e6e6e6", lw=0.5)
@@ -233,11 +235,11 @@ def fig_robust(R):
         rows = R[key]
         xs = [r[col] for r in rows]
         xi = np.arange(len(xs))
-        ax.plot(xi, [r["ratio"] for r in rows], color=NAVY, marker="o", ms=3.5, lw=1.2, label="full period")
+        ax.plot(xi, [r["ratio"] for r in rows], color=NAVY, marker="o", ms=3.5, lw=1.2, label="2015–2026")
         ax.plot(xi, [r["by_period"]["oos"] for r in rows], color=RED, marker="s", ms=3, lw=0.9, ls=":",
                 label="QISC out-of-sample")
-        ax.plot(xi, [r["by_period"]["heldout"] for r in rows], color=GREY, marker="^", ms=3, lw=0.9, ls="--",
-                label="held-out decade")
+        ax.plot(xi, [r["by_period"]["history"] for r in rows], color=GREY, marker="^", ms=3, lw=0.9, ls="--",
+                label="2007–2014")
         ax.set_xticks(xi, [f"{v:g}×" if fmt == "x" else f"{v:g}" for v in xs], fontsize=7.3)
         ax.set_xlabel(lab)
         ax.axhline(0, color=INK, lw=0.4)
@@ -246,6 +248,76 @@ def fig_robust(R):
     fig.legend(h, l, loc="upper center", ncol=3, fontsize=7.3, bbox_to_anchor=(0.5, 1.0))
     fig.tight_layout(w_pad=1.2, rect=(0, 0, 1, 0.9))
     fig.savefig(FIG / "robust.png")
+    plt.close(fig)
+
+
+def fig_forward(eq, spy):
+    """Figure 3: 2026 to date, and the forward test after the rules were fixed."""
+    fig, (a, b) = plt.subplots(1, 2, figsize=(W, 2.3), gridspec_kw={"width_ratios": [1.6, 1]})
+    for ax, start, title in ((a, pd.Timestamp("2025-12-31"), "(a) 2026 to date"),
+                             (b, C.DEV_WINDOW[1], "(b) Forward test, after the rules were fixed")):
+        s = eq[eq.index >= start]
+        p = spy.reindex(s.index).ffill()
+        cs, cb = s / s.iloc[0] - 1, p / p.iloc[0] - 1
+        if ax is a:
+            ax.axvspan(FWD, s.index[-1], color=GREY, alpha=0.35, lw=0, zorder=0)
+        ax.plot(cs.index, cs, color=NAVY, lw=1.3, label="strategy")
+        ax.plot(cb.index, cb, color=GREY, lw=1.0, ls="--", label="SPY")
+        ax.axhline(0, color=INK, lw=0.5)
+        _end_labels(ax, [cs, cb], lambda v: f"{v:+.0%}" if abs(v) >= 0.2 else f"{v:+.1%}")
+        ax.yaxis.set_major_formatter(pct())
+        ax.set_title(title, fontsize=8, loc="left")
+        if ax is a:
+            ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%b"))
+        else:
+            ax.xaxis.set_major_locator(matplotlib.dates.DayLocator(bymonthday=[1, 15]))
+            ax.xaxis.set_major_formatter(mt.FuncFormatter(lambda v, _: (lambda d: f"{d.day} {d:%b}")(matplotlib.dates.num2date(v))))
+        ax.tick_params(axis="x", labelsize=7)
+        ax.grid(axis="y", color="#e6e6e6", lw=0.5)
+    a.set_ylabel("cumulative return")
+    a.legend(loc="upper left", fontsize=7.3)
+    fig.tight_layout(w_pad=2.0)
+    fig.savefig(FIG / "forward.png")
+    plt.close(fig)
+
+
+def fig_regime(spy):
+    """Figure 6: the regime and decay monitors, 2007 to today."""
+    eqc = pd.read_csv(SERIES / "equity_continuous.csv", index_col=0, parse_dates=True).iloc[:, 0]
+    ind = pd.read_csv(SERIES / "regime_indicators.csv", index_col=0)
+    ind.index = pd.PeriodIndex(ind.index, freq="M").to_timestamp("M")
+    rd = pd.read_csv(SERIES / "relative_drawdown.csv", index_col=0, parse_dates=True).iloc[:, 0]
+    sp = spy.reindex(eqc.index).ffill()
+    ms, mb = eqc.resample("ME").last(), sp.resample("ME").last()
+    roll = (ms / ms.shift(36)) ** (1 / 3) - (mb / mb.shift(36)) ** (1 / 3)
+    fig, ax = plt.subplots(4, 1, figsize=(W, 4.5), sharex=True, gridspec_kw={"height_ratios": [1.2, 1, 0.9, 0.9]})
+    for x in ax:
+        x.axvspan(eqc.index[0], C.MAIN_START, color=LIGHT, alpha=0.55, lw=0, zorder=0)
+        x.axvline(FWD, color=INK, lw=0.6, ls=":")
+        x.grid(axis="y", color="#e6e6e6", lw=0.5)
+    ax[0].text(pd.Timestamp("2011-01-01"), 1.02, "before the sample", transform=ax[0].get_xaxis_transform(), ha="center",
+               va="bottom", fontsize=7.5, color="#555555", style="italic")
+    ax[0].text(pd.Timestamp("2020-07-01"), 1.02, "main sample, 2015–2026", transform=ax[0].get_xaxis_transform(), ha="center",
+               va="bottom", fontsize=7.5, color="#555555", style="italic")
+    ax[0].fill_between(roll.index, roll, 0, where=roll >= 0, color=NAVY, alpha=0.55, lw=0)
+    ax[0].fill_between(roll.index, roll, 0, where=roll < 0, color=RED, alpha=0.45, lw=0)
+    ax[0].set_ylabel("3-year return\nabove SPY, a year")
+    sup = ind["supply"]
+    ax[1].plot(sup.index, sup, color=NAVY, lw=1.0, label="stocks passing the screen (21-day average)")
+    ax[1].plot(sup.index, sup.rolling(36, min_periods=12).median(), color=GREY, lw=0.9, ls="--", label="3-year median")
+    ax[1].set_ylabel("supply of\nclean trends")
+    ax[1].legend(loc="upper left", fontsize=7, ncol=2)
+    e = ind["edge12"]
+    ax[2].bar(e.index, e, width=25, color=np.where(e >= 0, NAVY, RED), alpha=0.75, lw=0)
+    ax[2].set_ylabel("edge health:\ntouch advantage")
+    ax[3].fill_between(rd.index, rd, 0, color=RED, alpha=0.40, lw=0)
+    ax[3].set_ylabel("drawdown\nrelative to SPY")
+    for x in (ax[0], ax[2], ax[3]):
+        x.axhline(0, color=INK, lw=0.5)
+        x.yaxis.set_major_formatter(pct())
+    ax[3].set_xlim(eqc.index[0], eqc.index[-1])
+    fig.tight_layout(h_pad=0.5)
+    fig.savefig(FIG / "regime.png")
     plt.close(fig)
 
 
@@ -265,4 +337,6 @@ def run():
     fig_trades(tr)
     fig_years()
     fig_robust(R)
+    fig_forward(eq, bench)
+    fig_regime(bench)
     print(f"  {len(list(FIG.glob('*.png')))} figures -> {FIG.relative_to(C.ROOT)}")

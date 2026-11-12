@@ -1,6 +1,0 @@
-| Cost and liquidity assumptions | Per year | Worst drawdown | Sharpe | Monthly excess [95%] |
-|---|---|---|---|---|
-| Flat 10 bp per side, no liquidity cap | +13.2% | −70% | 0.52 | +0.61% [−0.60%, +1.83%] |
-| Impact costs, no liquidity cap | +12.5% | −71% | 0.50 | +0.56% [−0.66%, +1.78%] |
-| Flat 10 bp per side, orders capped at 5% of ADV | +11.4% | −63% | 0.49 | +0.36% [−0.70%, +1.41%] |
-| Impact costs and 5% of ADV cap (baseline) | +10.9% | −64% | 0.48 | +0.33% [−0.73%, +1.38%] |

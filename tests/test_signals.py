@@ -77,6 +77,20 @@ def test_order_capped_at_5pct_of_adv_and_impact_cost():
     assert np.allclose(tr.cost_in.iloc[0], 0.0005 + max(0.0005, 0.01 * np.sqrt(tr.adv_share.iloc[0])))
 
 
+def test_regime_switch_uses_last_month_end_state_and_charges_switches():
+    from src.regime import switch_series
+    d = pd.bdate_range("2020-01-01", "2020-04-30")
+    eq = pd.Series(np.cumprod(np.full(len(d), 1.01)), d)            # the strategy gains 1% a day
+    spy = pd.Series(1.0, d)                                         # SPY is flat
+    state = pd.Series([1.0, 0.0, 1.0, 1.0], pd.period_range("2020-01", periods=4, freq="M"))
+    sw = switch_series(eq, spy, state, fee=0.01)
+    feb, mar = sw[d.month == 2], sw[d.month == 3]
+    assert np.allclose(feb.iloc[1:] / feb.shift(1).iloc[1:], 1.01)     # January's state (on) is applied in February
+    assert np.allclose(mar.iloc[1:] / mar.shift(1).iloc[1:], 1.0)      # February's state (off) is applied in March
+    first_mar = sw.index.get_loc(mar.index[0])
+    assert np.isclose(sw.iloc[first_mar] / sw.iloc[first_mar - 1], 1.0 - 0.01)   # one switch charged on its first day
+
+
 if __name__ == "__main__":                       # also runs without pytest:  python tests/test_signals.py
     tests = [f for n, f in sorted(globals().items()) if n.startswith("test_")]
     for f in tests:
