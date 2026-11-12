@@ -128,7 +128,7 @@ Table 3 shows how much of the development-sample result survives a longer sample
 | Worst drawdown (SPY) | −47% (−34%) | −70% (−55%) | −58% (−55%) |
 | Monthly return above SPY | +2.23% | +0.65% | +0.29% |
 | 95% interval | [+0.18%, +4.51%] | [−0.57%, +1.87%] | [−0.48%, +1.05%] |
-| $1 becomes (SPY) | $20.90 ($3.62) | $12.67 ($7.67) | $10.18 ($7.67) |
+| Cumulative return (SPY) | +1990% (+262%) | +1167% (+667%) | +918% (+667%) |
 
 Table: The concentrated variant and the baseline portfolio.
 Note: Concentrated: five positions of 20%, $0.5 million liquidity screen, 5 bp per side. Baseline: Table 2. The first column covers 3 July 2017 to 18 September 2026.
@@ -137,7 +137,7 @@ The universe restriction to US companies matters in a concentrated portfolio. Wi
 
 ### The baseline portfolio by period
 
-Table 4 and Figure 2 report the baseline portfolio over the full sample and in each period. Over nearly twenty years it turns $1 into $10.18 against $7.67 for SPY, with a beta of 0.97 and a volatility of 29.6%, about one and a half times that of the index. In the held-out decade it trails the index (6.3% against 7.5% a year) with a deeper drawdown. In the development period it beats the index (17.8% against 14.4%) but with a lower Sharpe ratio. In the QISC out-of-sample window it trails again (10.7% against 16.1%) with a beta of 1.39. In no period is the excess return distinguishable from zero: H3 is not supported.
+Table 4 and Figure 2 report the baseline portfolio over the full sample and in each period. Over nearly twenty years it returns 918% cumulatively against 667% for SPY, with a beta of 0.97 and a volatility of 29.6%, about one and a half times that of the index. In the held-out decade it trails the index (6.3% against 7.5% a year) with a deeper drawdown. In the development period it beats the index (17.8% against 14.4%) but with a lower Sharpe ratio. In the QISC out-of-sample window it trails again (10.7% against 16.1%) with a beta of 1.39. In no period is the excess return distinguishable from zero: H3 is not supported.
 
 | Measure | Full sample | Held-out | Development | QISC out-of-sample |
 |---|---|---|---|---|
@@ -147,6 +147,7 @@ Table 4 and Figure 2 report the baseline portfolio over the full sample and in e
 | Monthly return above SPY | +0.29% | −0.01% | +0.48% | −0.00% |
 | 95% interval | [−0.48%, +1.05%] | [−0.94%, +0.91%] | [−0.85%, +1.91%] | [−3.72%, +3.85%] |
 | Alpha per year | +3.8% | +1.0% | +4.7% | −5.4% |
+| Cumulative return (SPY) | +918% (+667%) | +90% (+113%) | +242% (+174%) | +21% (+32%) |
 | *Panel B: Risk* | | | | |
 | Volatility per year | 29.6% | 24.2% | 31.8% | 45.0% |
 | Sharpe ratio (SPY) | 0.54 (0.62) | 0.37 (0.45) | 0.68 (0.81) | 0.45 (0.96) |
@@ -161,7 +162,7 @@ Table 4 and Figure 2 report the baseline portfolio over the full sample and in e
 | Mean / median trade | +4.4% / +2.0% | +2.5% / +1.6% | +6.0% / +2.1% | +7.1% / −0.9% |
 
 Table: Performance of the baseline portfolio, January 2007 to November 2026.
-Note: Each period is a separate portfolio that starts in cash. Intervals resample whole months. Alpha and beta are from a regression of monthly returns on SPY. Annual returns are in Appendix A.
+Note: Each period is a separate portfolio that starts in cash. Intervals resample whole months. Alpha and beta are from a regression of monthly returns on SPY. Annual and cumulative returns are in Appendix A.
 
 ![Growth of $1 on a log scale (top) and drawdown from the previous peak (bottom), baseline portfolio and SPY. Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/equity.png)
 
@@ -286,7 +287,9 @@ REF: Shefrin, H., Statman, M., 1985. The disposition to sell winners too early a
 REF: Sullivan, R., Timmermann, A., White, H., 1999. Data-snooping, technical trading rule performance, and the bootstrap. *Journal of Finance* 54 (5), 1647–1691.
 REF: Tsinaslanidis, P., Guijarro, F., Voukelatos, N., 2022. Automatic identification and evaluation of Fibonacci retracements: empirical evidence from three equity markets. *Expert Systems with Applications* 187, 115893.
 
-## Appendix A. Annual returns
+## Appendix A. Annual and cumulative returns
+
+Table A.1 lists calendar-year returns. Figure A.1 shows the cumulative return of the baseline portfolio and SPY over the full sample, together with the portfolio's value relative to SPY, which is negative from 2011 to 2017 and stays positive only from 2021 onward. Figure A.2 repeats the comparison for each period, with each portfolio starting in cash.
 
 | Year | Portfolio | SPY | Difference |
 |---|---|---|---|
@@ -313,6 +316,10 @@ REF: Tsinaslanidis, P., Guijarro, F., Voukelatos, N., 2022. Automatic identifica
 
 Table: Calendar-year returns of the baseline portfolio.
 Note: The portfolio runs continuously from January 2007 and beats SPY in eleven of twenty years. * 2026 to 11 November.
+
+![Cumulative return of the baseline portfolio and SPY, January 2007 to November 2026 (top), and the portfolio's value relative to SPY (bottom). Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/cumulative.png)
+
+![Cumulative return of the baseline portfolio and SPY in each period: (a) held-out decade, (b) development period, (c) QISC out-of-sample window. Each portfolio starts in cash on the first day of its period, as in Table 4.](../output/figures/cumulative_periods.png)
 
 ## Appendix B. Robustness tables
 

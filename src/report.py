@@ -33,14 +33,14 @@ def tables(R: dict) -> dict:
           ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])), ("Sharpe ratio (SPY)", lambda s: f"{F(s['sharpe'])} ({F(s['bench_sharpe'])})"),
           ("Worst drawdown (SPY)", lambda s: f"{P(s['maxdd'], 0)} ({P(s['bench_dd'], 0)})"),
           ("Monthly return above SPY [95%]", lambda s: f"{P(s['excess_m'], 2)} {CI(s['excess_ci'])}"),
-          ("$1 becomes (SPY)", lambda s: f"${s['final']:.2f} (${s['bench_final']:.2f})")]
+          ("Cumulative return (SPY)", lambda s: f"{P(s['final'] - 1, 0)} ({P(s['bench_final'] - 1, 0)})")]
     _save(pd.DataFrame([[lab, f(a), f(b), f(c)] for lab, f in r3],
                        columns=["Measure", "Concentrated, 2017-2026", "Concentrated, 2007-2026", "Baseline, 2007-2026"]),
           "table3_concentration")
     cols = {"Full sample": R["main"], **{k: R["periods"][k] for k in ("heldout", "dev", "oos")}}
     rows = [("Growth per year (CAGR)", lambda s: P(s["cagr"])), ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])),
             ("Monthly return above SPY", lambda s: P(s["excess_m"], 2)), ("95% interval", lambda s: CI(s["excess_ci"])),
-            ("Alpha per year", lambda s: P(s["alpha_ann"])), ("$1 becomes (SPY)", lambda s: f"${s['final']:.2f} (${s['bench_final']:.2f})"),
+            ("Alpha per year", lambda s: P(s["alpha_ann"])), ("Cumulative return (SPY)", lambda s: f"{P(s['final'] - 1, 0)} ({P(s['bench_final'] - 1, 0)})"),
             ("Volatility per year", lambda s: U(s["vol"], 1)), ("Sharpe ratio (SPY)", lambda s: f"{F(s['sharpe'])} ({F(s['bench_sharpe'])})"),
             ("Sortino ratio", lambda s: F(s["sortino"])), ("Worst drawdown (SPY)", lambda s: f"{P(s['maxdd'], 0)} ({P(s['bench_dd'], 0)})"),
             ("CAGR ÷ max drawdown", lambda s: F(s["ratio"])), ("Beta", lambda s: F(s["beta"])), ("Information ratio", lambda s: F(s["info_ratio"])),

@@ -98,6 +98,8 @@ def run_all() -> dict:
     tr.to_csv(out / "trades.csv", index=False)
     od.to_csv(out / "orders.csv", index=False)
     R["periods"] = by_period(m, bench)
+    for k, (a, b) in C.PERIODS.items():                 # fresh portfolio per period (Figure A.2)
+        book(m, bench, a, b)[0].to_csv(out / f"equity_{k}.csv")
     sp = bench.reindex(eq.index).ffill()
     ye, ys = eq.resample("YE").last(), sp.resample("YE").last()
     ye = ye / pd.concat([pd.Series([eq.iloc[0]]), ye.iloc[:-1]]).values - 1

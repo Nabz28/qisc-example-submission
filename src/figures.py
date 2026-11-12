@@ -121,6 +121,66 @@ def fig_equity(eq, spy):
     plt.close(fig)
 
 
+def _end_labels(ax, series, fmt):
+    order = sorted(series, key=lambda s: s.iloc[-1])
+    for k, s in enumerate(order):
+        ax.annotate(fmt(s.iloc[-1]), (s.index[-1], s.iloc[-1]), xytext=(3, -5 if k == 0 else 5),
+                    textcoords="offset points", fontsize=7.5, va="center")
+
+
+def fig_cumulative(eq, spy):
+    """Figure A.1: cumulative return of the strategy and the benchmark, and their ratio."""
+    sp = spy.reindex(eq.index).ffill()
+    sp = sp / sp.iloc[0]
+    fig, (a, b) = plt.subplots(2, 1, figsize=(W, 3.9), sharex=True, gridspec_kw={"height_ratios": [2.2, 1]})
+    shade(a, eq.index[-1])
+    cs, cb = eq - 1, sp - 1
+    a.plot(cs.index, cs, color=NAVY, lw=1.3, label="EMA20 band strategy")
+    a.plot(cb.index, cb, color=GREY, lw=1.0, ls="--", label="S&P 500 (SPY, total return)")
+    _end_labels(a, [cs, cb], lambda v: f"{v:+.0%}")
+    a.axhline(0, color=INK, lw=0.5)
+    a.yaxis.set_major_formatter(pct())
+    a.set_ylabel("cumulative return")
+    a.legend(loc="upper left", bbox_to_anchor=(0, 0.88))
+    a.grid(axis="y", color="#e6e6e6", lw=0.5)
+    rel = eq / sp - 1
+    shade(b, eq.index[-1], labels=False)
+    b.fill_between(rel.index, rel, 0, where=rel >= 0, color=NAVY, alpha=0.45, lw=0)
+    b.fill_between(rel.index, rel, 0, where=rel < 0, color=RED, alpha=0.40, lw=0)
+    b.axhline(0, color=INK, lw=0.5)
+    b.yaxis.set_major_formatter(pct())
+    b.set_ylabel("relative to SPY")
+    b.set_xlim(eq.index[0], eq.index[-1])
+    fig.tight_layout(h_pad=0.4)
+    fig.savefig(FIG / "cumulative.png")
+    plt.close(fig)
+
+
+def fig_cumulative_periods(spy):
+    """Figure A.2: cumulative return in each period, each portfolio starting in cash."""
+    names = {"heldout": "(a) Held-out, 2007–2017", "dev": "(b) Development, 2017–2024", "oos": "(c) QISC out-of-sample, 2025–2026"}
+    fig, axes = plt.subplots(1, 3, figsize=(W, 2.35), gridspec_kw={"width_ratios": [10.5, 7.5, 3.2]})
+    for ax, (k, title) in zip(axes, names.items()):
+        eq = pd.read_csv(SERIES / f"equity_{k}.csv", index_col=0, parse_dates=True).iloc[:, 0]
+        sp = spy.reindex(eq.index).ffill()
+        cs, cb = eq / eq.iloc[0] - 1, sp / sp.iloc[0] - 1
+        ax.plot(cs.index, cs, color=NAVY, lw=1.1, label="strategy")
+        ax.plot(cb.index, cb, color=GREY, lw=0.9, ls="--", label="SPY")
+        ax.axhline(0, color=INK, lw=0.4)
+        _end_labels(ax, [cs, cb], lambda v: f"{v:+.0%}")
+        ax.set_title(title, fontsize=8, loc="left")
+        ax.yaxis.set_major_formatter(pct())
+        ax.xaxis.set_major_locator(matplotlib.dates.YearLocator(base=3 if k == "heldout" else (2 if k == "dev" else 1)))
+        ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y"))
+        ax.tick_params(axis="x", labelsize=7)
+        ax.grid(axis="y", color="#e6e6e6", lw=0.5)
+    axes[0].set_ylabel("cumulative return")
+    axes[0].legend(loc="upper left", fontsize=7)
+    fig.tight_layout(w_pad=1.6)
+    fig.savefig(FIG / "cumulative_periods.png")
+    plt.close(fig)
+
+
 def fig_paths():
     fig, ax = plt.subplots(figsize=(W, 2.3))
     for kind, col, lab, ls, lw in (("touch", NAVY, "top ten, bought on a band touch (the entry rule)", "-", 1.6),
@@ -200,8 +260,10 @@ def run():
     opn = pd.read_parquet(C.DATA / "wide_open.parquet")
     fig_ema(tr, close, opn)
     fig_equity(eq, bench)
+    fig_cumulative(eq, bench)
+    fig_cumulative_periods(bench)
     fig_paths()
     fig_trades(tr)
     fig_years()
     fig_robust(R)
-    print(f"  6 figures -> {FIG.relative_to(C.ROOT)}")
+    print(f"  {len(list(FIG.glob('*.png')))} figures -> {FIG.relative_to(C.ROOT)}")

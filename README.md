@@ -59,7 +59,7 @@ qisc-[team-name]/
     ├── numbers.json       deflated Sharpe ratio and number of trials
     ├── compliance.json    checks against the casebook constraints
     ├── tables/            Tables 3-6 and B.1-B.3 as .csv and .md, appendix trade lists
-    ├── figures/           figures (.png, 300 dpi)
+    ├── figures/           figures, including cumulative returns versus SPY (.png, 300 dpi)
     └── paper.pdf          the rendered paper
 ```
 
