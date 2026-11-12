@@ -1,8 +1,8 @@
-# qisc-[team-name]
+# qisc-teamtester
 
 Code repository for the QISC 2027 Preliminary Round submission
 **"Buying the Pullback in the Cleanest Trends: An EMA Band Strategy for the Current US Equity Regime"**
-(Team [Team Name], Arena: United States).
+(TeamTester, Arena: United States).
 
 One command reproduces every table, figure and number in the paper, plus the files the competition requires:
 
@@ -38,7 +38,7 @@ The strategy works in the current regime but not before it, and its excess retur
 ## Repository layout
 
 ```
-qisc-[team-name]/
+qisc-teamtester/
 ├── README.md
 ├── requirements.txt
 ├── REGIME_PROTOCOL.md     the regime and decay tests, written and committed before they were run

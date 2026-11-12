@@ -1,13 +1,13 @@
 ---
 kicker: QISC 2027 · Preliminary Round Submission
 title: Buying the Pullback in the Cleanest Trends: An EMA Band Strategy for the Current US Equity Regime
-authors: [Full Name]^1, [Full Name]^2, [Full Name]^3
-affiliations: 1 [Faculty], [University], [City], Indonesia || 2 [Faculty], [University], [City], Indonesia || 3 [Faculty], [University], [City], Indonesia
-meta: Team [Team Name] · Arena: United States · Benchmark: S&P 500 total return (SPY) · January 2015 to November 2026
+authors: Nabil Sachio Refat^1, Muhammad Rizky Narindra^2, Charlie Verchius^3
+affiliations: 1 Department of Economics, The University of Melbourne, Melbourne, Australia || 2 Department of Economics, Faculty of Economics and Business, Universitas Indonesia, Depok, Indonesia || 3 Department of Management, Faculty of Economics and Business, Universitas Indonesia, Depok, Indonesia
+meta: TeamTester · Arena: United States · Benchmark: S&P 500 total return (SPY) · January 2015 to November 2026
 keywords: Momentum; Short-term reversal; Exponential moving average; Market regimes; Strategy decay; Out-of-sample testing
 abstract: We study a long-only US equity strategy that holds five stocks with the cleanest trends, buys each when its price pulls back into the band between the 20-day exponential moving averages of opens and closes, and sells after 63 trading days. Under the QISC cost model, with fees, square-root market impact and every order capped at 5% of the stock's daily traded value, it earns 22.1% a year from January 2015 to November 2026 against 13.5% for the S&P 500, turning $1 into $10.6 against $4.5, with a Sharpe ratio of 0.75 against 0.81 and a worst drawdown of 43%. The result depends on the market regime. The same rules lose 1.1% a year over 2007–2014, and since 2015 they have done best in trending markets with many clean trends and a few extreme winners. Pre-registered tests show that market trend, the supply of clean trends and small-cap leadership all point the right way in both decades, but none is significant, and switching out of the strategy after a poor year would have destroyed most of its return. In the 38 trading days since the rules were fixed, the portfolio has lost 7.9% against 0.7% for the index, a shortfall seen in one of five comparable windows. One component holds in every sample: entries on a band touch beat entries into the same trends without one by 1.6 percentage points over five days and 5.1 points over three months.
 titlenote: Submitted to the Quant Investment Strategy Competition (QISC) 2027, Preliminary Round. Every number, table and figure in this paper is produced by `python run.py` in the accompanying code repository (commit `[hash]`). The regime tests in Section 7 follow a protocol committed to the repository before they were run.
-footer: QISC 2027 | [Team Name] | Arena: United States
+footer: QISC 2027 | TeamTester | Arena: United States
 ---
 
 ## Introduction
@@ -297,11 +297,11 @@ Two results are robust enough to act on. The pullback entry improves on buying t
 
 ## Statement of Originality and AI Disclosure
 
-We declare that this paper and the accompanying code are the original work of Team [Team Name], that all sources are cited, and that the submission has not been submitted to any other competition. Generative AI was used to assist with programming the data pipeline and with formatting tables and figures. The strategy, the analysis and the written paper are the team's own work, and the team takes full responsibility for the content.
+We declare that this paper and the accompanying code are the original work of TeamTester, that all sources are cited, and that the submission has not been submitted to any other competition. Generative AI was used to assist with programming the data pipeline and with formatting tables and figures. The strategy, the analysis and the written paper are the team's own work, and the team takes full responsibility for the content.
 
 ## Code and data availability
 
-The repository `qisc-[team-name]` reproduces every table and figure with one command, `python run.py`. It downloads the symbol directory, the Nasdaq screener and the prices, computes the point-in-time scores, runs every test, and writes the tables, the figures, the trade list and `output/positions.csv` in the format required by the competition. `REGIME_PROTOCOL.md` contains the regime tests as committed before they were run. All data are publicly available; a full run takes about 30 minutes, most of it the price download.
+The repository `qisc-teamtester` reproduces every table and figure with one command, `python run.py`. It downloads the symbol directory, the Nasdaq screener and the prices, computes the point-in-time scores, runs every test, and writes the tables, the figures, the trade list and `output/positions.csv` in the format required by the competition. `REGIME_PROTOCOL.md` contains the regime tests as committed before they were run. All data are publicly available; a full run takes about 30 minutes, most of it the price download.
 
 ## References
 
