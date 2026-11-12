@@ -1,0 +1,9 @@
+# downloaded and derived data are rebuilt by run.py (about 1.5 GB)
+data/
+output/series/
+paper/manuscript.html
+paper/_render_tmp.pdf
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store

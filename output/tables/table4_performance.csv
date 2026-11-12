@@ -1,0 +1,18 @@
+Measure,Full sample,Pre-design,Design,QISC out-of-sample
+Growth per year (CAGR),+12.4%,+6.3%,+17.8%,+10.7%
+S&P 500 growth per year,+10.8%,+7.5%,+14.4%,+16.1%
+Monthly return above SPY,+0.29%,−0.01%,+0.48%,−0.00%
+95% interval,"[−0.48%, +1.05%]","[−0.94%, +0.91%]","[−0.85%, +1.91%]","[−3.72%, +3.85%]"
+Alpha per year,+3.8%,+1.0%,+4.7%,−5.4%
+$1 becomes (SPY),$10.18 ($7.67),$1.90 ($2.13),$3.42 ($2.74),$1.21 ($1.32)
+Volatility per year,29.6%,24.2%,31.8%,45.0%
+Sharpe ratio (SPY),0.54 (0.62),0.37 (0.45),0.68 (0.81),0.45 (0.96)
+Sortino ratio,0.71,0.48,0.86,0.63
+Worst drawdown (SPY),−58% (−55%),−58% (−55%),−52% (−34%),−35% (−19%)
+CAGR ÷ max drawdown,0.21,0.11,0.34,0.30
+Beta,0.97,0.86,1.08,1.39
+Information ratio,0.16,−0.01,0.25,−0.00
+Trades,710,366,265,62
+Win rate,54%,54%,54%,50%
+Average win / average loss,+22.4% / −16.3%,+18.1% / −15.5%,+25.4% / −16.9%,+35.8% / −21.6%
+Mean / median trade,+4.4% / +2.0%,+2.5% / +1.6%,+6.0% / +2.1%,+7.1% / −0.9%

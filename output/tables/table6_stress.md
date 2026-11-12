@@ -1,0 +1,10 @@
+| Test | Per year | Worst drawdown | Sharpe | Monthly excess [95%] |
+|---|---|---|---|---|
+| QISC book | +12.4% | −58% | 0.54 | +0.29% [−0.5%, +1.0%] |
+| Execution one day later | +13.0% | −56% | 0.56 | +0.32% [−0.4%, +1.1%] |
+| Without the five largest contributors | +11.7% | −58% | 0.53 | +0.22% [−0.5%, +1.0%] |
+| Bought without a touch | +11.9% | −58% | 0.51 | +0.32% [−0.6%, +1.2%] |
+| Pullbacks counted only once confirmed | +10.4% | −58% | 0.48 | +0.15% [−0.7%, +0.9%] |
+| New positions only while SPY > 200-day average | +13.2% | −54% | 0.59 | +0.32% [−0.5%, +1.1%] |
+| Twelve start months, pre-design | +3.3% to +7.6% | −60.1% to −51.9% |  |  |
+| Twelve start months, design | +12.0% to +18.7% | −56.1% to −49.8% |  |  |
