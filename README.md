@@ -2,7 +2,7 @@
 
 Code repository for the QISC 2027 Preliminary Round submission
 **"Buying the Pullback in the Cleanest Trends: An EMA Band Strategy for the Current US Equity Regime"**
-(Tester, Arena: United States).
+(Team Tester, Arena: United States).
 
 One command reproduces every table, figure and number in the paper, plus the files the competition requires:
 
