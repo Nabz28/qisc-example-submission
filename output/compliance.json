@@ -1,14 +1,13 @@
 {
  "long_only": true,
- "max_weight": 0.1,
- "max_weight_ok": true,
+ "max_weight": 0.2,
+ "leverage_max": 1.0,
  "avg_holding_days": 63.0,
- "holding_ok": true,
  "execution": "signal at close t, fill at open t+1",
- "cost_per_side": 0.001,
- "cost_ok": true,
- "entries": 720,
- "entries_within_5pct_adv": 0.8958333333333334,
- "entries_within_5pct_adv_nav_below_2m": 0.9711286089238845,
- "note": "Positions are sized on the compounding NAV of a book that starts at $1M. The 5%-of-ADV limit binds increasingly as NAV grows; a live book would raise the liquidity floor with NAV."
+ "cost_model": "fees 0.05% + max(0.05%, 1% x sqrt(order / ADV)) per side",
+ "avg_cost_per_side": 0.001699264896209454,
+ "entries": 366,
+ "entries_within_5pct_adv": 0.9972677595628415,
+ "median_order_share_of_adv": 0.010898663603689993,
+ "note": "Each order is capped at 5% of the 60-day median traded value on NAV at the time of the order."
 }

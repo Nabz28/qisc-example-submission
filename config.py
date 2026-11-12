@@ -46,15 +46,14 @@ TOUCH_TOL = 0.01                      # a close up to 1% above the band counts a
 HOLD = 63                             # sell at the open after this many sessions
 COOLDOWN = 5                          # a stock sold cannot be bought again within this many sessions
 
-# ---------------------------------------------------------------- the baseline portfolio (QISC constraints)
-SLOTS = 10                            # casebook: at most 10% of NAV per name
-LIQ_QISC = 2e6                        # casebook: position <= 5% of 60-day median traded value ($100k / 5%)
-COST = 0.0010                         # per side: 5 bp fees + 5 bp slippage (casebook minimum, US)
+# ---------------------------------------------------------------- the baseline portfolio (QISC rules)
+SLOTS = 5                             # five positions of 20% of equity (no per-name limit in the casebook)
+LIQ_QISC = 0.0                        # no fixed liquidity floor beyond the screen's $0.5M ...
+MAX_ADV_FRAC = 0.05                   # ... but each order <= 5% of the 60-day median traded value, on NAV
 CAPITAL = 1_000_000                   # notional, USD (casebook)
-
-# ---------------------------------------------------------------- the concentrated variant (Table 3)
-CONC_SLOTS = 5                        # five positions of 20%, $0.5M liquidity screen only
-CONC_COST = 0.0005
+FEE = 0.0005                          # fees per side, US arena
+IMPACT_K, IMPACT_MIN = 0.01, 0.0005   # impact per side = max(0.05%, 1% x sqrt(order / ADV))
+EVENT_COST = FEE + IMPACT_MIN         # flat cost per side for the signal-level event study
 
 # ---------------------------------------------------------------- statistics
 BOOT = 2000                           # bootstrap draws, whole months resampled

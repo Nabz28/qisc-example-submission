@@ -39,9 +39,21 @@ class Market:
         return Market(**d)
 
 
-def simulate(m: Market, slots: int = C.SLOTS, cost: float = C.COST, hold: int = C.HOLD, touch: bool = True,
-             band_k: int = 0, vol_k: float = 0.0, stop: float = 0.0, start=None, end=None):
-    """One long-only book. Optional exits (decided on a close, executed at the next open):
+def trade_cost(order_value: float, adv: float, mult: float = 1.0) -> float:
+    """Cost per side as a fraction of the order (casebook cost model, US arena):
+    fees + market impact, impact = max(IMPACT_MIN, IMPACT_K x sqrt(order / ADV))."""
+    if not np.isfinite(adv) or adv <= 0:
+        return C.FEE + C.IMPACT_MIN * 10 * mult              # unknown liquidity: punitive
+    return C.FEE + mult * max(C.IMPACT_MIN, C.IMPACT_K * np.sqrt(order_value / adv))
+
+
+def simulate(m: Market, slots: int = C.SLOTS, cost: float | None = None, cost_mult: float = 1.0, hold: int = C.HOLD,
+             touch: bool = True, band_k: int = 0, vol_k: float = 0.0, stop: float = 0.0, start=None, end=None,
+             capital: float = C.CAPITAL):
+    """One long-only book. Each new position gets equity / slots, capped by cash and by MAX_ADV_FRAC of the
+    stock's 60-day median traded value at the decision date (on NAV = equity x capital). Costs follow the
+    casebook model (fees + square-root impact) unless a flat `cost` per side is given.
+    Optional exits (decided on a close, executed at the next open):
     band_k  > 0: band_k consecutive closes below the lower band edge;
     vol_k   > 0: a down close on volume >= vol_k x its 50-day median;
     stop    > 0: close at least `stop` below the entry price.
@@ -51,6 +63,8 @@ def simulate(m: Market, slots: int = C.SLOTS, cost: float = C.COST, hold: int = 
     i1 = len(d) if end is None else int(np.searchsorted(d, end))
     Cl, O, V, LO, VM, PC = m.close, m.open, m.vol, m.lower, m.vol_med, m.prev_close
     S, G, TR = m.score, m.signal, m.trend
+    ADV = m.extra["traded_value"]
+    cside = (lambda val, adv: cost) if cost is not None else (lambda val, adv: trade_cost(val, adv, cost_mult))
     cash, pos, trades, orders, cool = 1.0, [], [], [], {}
     eq = np.empty(i1 - i0)
     for t in range(i0, i1):
@@ -61,9 +75,12 @@ def simulate(m: Market, slots: int = C.SLOTS, cost: float = C.COST, hold: int = 
             why = "clock" if t - p["t"] >= hold else p.get("flag")
             if why and np.isfinite(O[t, j]):
                 px = O[t, j]
-                cash += p["alloc"] + p["sh"] * (px - p["px"]) - p["alloc"] * cost
+                gross = p["sh"] * px
+                c_out = cside(gross * capital, ADV[t - 1, j])
+                cash += gross * (1 - c_out)
                 trades.append(dict(sym=m.cols[j], entry=d[p["t"]], exit=d[t], why=why, bars=t - p["t"],
-                                   buy=p["px"], sell=px, ret=px / p["px"] - 1 - 2 * cost))
+                                   buy=p["px"], sell=px, cost_in=p["c_in"], cost_out=c_out, adv_share=p["adv_share"],
+                                   ret=gross * (1 - c_out) / (p["alloc"] * (1 + p["c_in"])) - 1))
                 orders.append(dict(date=d[t - 1], ticker=m.cols[j], weight=0.0))
                 cool[j] = t
             else:
@@ -82,12 +99,16 @@ def simulate(m: Market, slots: int = C.SLOTS, cost: float = C.COST, hold: int = 
                     continue
                 if not np.isfinite(O[t, j]) or O[t, j] <= 0:
                     continue
-                mtm = cash + sum(p["alloc"] + p["sh"] * (p["last"] - p["px"]) for p in pos)
-                alloc = min(mtm / slots, cash)
-                if alloc <= 0:
-                    break
-                cash -= alloc * (1 + cost)
-                pos.append(dict(j=j, t=t, px=O[t, j], sh=alloc / O[t, j], alloc=alloc, last=O[t, j], below=0))
+                mtm = cash + sum(p["sh"] * p["last"] for p in pos)
+                adv = ADV[t - 1, j]
+                cap = C.MAX_ADV_FRAC * adv / capital if np.isfinite(adv) else 0.0
+                alloc = min(mtm / slots, cash / 1.003, cap)
+                if alloc <= 1e-9:
+                    continue
+                c_in = cside(alloc * capital, adv)
+                cash -= alloc * (1 + c_in)
+                pos.append(dict(j=j, t=t, px=O[t, j], sh=alloc / O[t, j], alloc=alloc, last=O[t, j], below=0,
+                                c_in=c_in, adv_share=alloc * capital / adv if adv else np.nan))
                 orders.append(dict(date=d[t - 1], ticker=m.cols[j], weight=alloc / mtm))
                 held.add(j)
         # mark to market at the close; flag price-based exits for tomorrow's open
@@ -104,7 +125,7 @@ def simulate(m: Market, slots: int = C.SLOTS, cost: float = C.COST, hold: int = 
                         p.setdefault("flag", "volume")
                     if stop and c / p["px"] - 1 <= -stop:
                         p.setdefault("flag", "stop")
-            val += p["alloc"] + p["sh"] * (p["last"] - p["px"])
+            val += p["sh"] * p["last"]
         eq[t - i0] = val
     return pd.Series(eq, d[i0:i1]), pd.DataFrame(trades), pd.DataFrame(orders)
 

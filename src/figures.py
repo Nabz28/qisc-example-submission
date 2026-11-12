@@ -98,7 +98,7 @@ def fig_equity(eq, spy):
     sp = sp / sp.iloc[0]
     fig, (a, b) = plt.subplots(2, 1, figsize=(W, 3.7), sharex=True, gridspec_kw={"height_ratios": [2.3, 1]})
     shade(a, eq.index[-1])
-    a.plot(eq.index, eq, color=NAVY, lw=1.3, label="EMA20 band strategy (10 positions, 10 bp per side)")
+    a.plot(eq.index, eq, color=NAVY, lw=1.3, label="EMA20 band strategy (5 positions, casebook costs)")
     a.plot(sp.index, sp, color=GREY, lw=1.0, ls="--", label="S&P 500 (SPY, total return)")
     hi_first = eq.iloc[-1] >= sp.iloc[-1]
     for s, up in ((eq, hi_first), (sp, not hi_first)):
@@ -183,8 +183,8 @@ def fig_cumulative_periods(spy):
 
 def fig_paths():
     fig, ax = plt.subplots(figsize=(W, 2.3))
-    for kind, col, lab, ls, lw in (("touch", NAVY, "top ten, bought on a band touch (the entry rule)", "-", 1.6),
-                                   ("no_touch", GREY, "top ten, bought on a day without a touch", "--", 1.1)):
+    for kind, col, lab, ls, lw in (("touch", NAVY, "top five, bought on a band touch (the entry rule)", "-", 1.6),
+                                   ("no_touch", GREY, "top five, bought on a day without a touch", "--", 1.1)):
         p = pd.read_csv(SERIES / f"path_{kind}.csv", index_col=0)
         ax.plot(p.index, p["mean"], color=col, ls=ls, lw=lw, label=lab)
         ax.text(p.index[-1] + 1, p["mean"].iloc[-1], f"{p['mean'].iloc[-1]:+.1%}", fontsize=7.5, va="center")
@@ -201,11 +201,9 @@ def fig_trades(tr):
     fig, ax = plt.subplots(figsize=(W, 2.2))
     ax.hist(r.clip(-1, 2), bins=np.linspace(-1, 2, 37), color=NAVY, edgecolor="white", lw=0.8)
     ax.axvline(0, color=INK, lw=0.6)
-    ax.axvline(r.mean(), color=RED, lw=0.9, ls=":")
-    ax.axvline(r.median(), color=GREY, lw=0.9, ls="--")
-    top = ax.get_ylim()[1]
-    ax.text(r.mean(), top * 0.92, f"  mean {r.mean():+.1%}", fontsize=7.5, color=RED, ha="left")
-    ax.text(r.median(), top * 0.92, f"median {r.median():+.1%}  ", fontsize=7.5, color="#555555", ha="right")
+    ax.axvline(r.mean(), color=RED, lw=0.9, ls=":", label=f"mean {r.mean():+.1%}")
+    ax.axvline(r.median(), color=GREY, lw=0.9, ls="--", label=f"median {r.median():+.1%}")
+    ax.legend(loc="upper right")
     ax.xaxis.set_major_formatter(pct())
     ax.set(xlabel="return of each trade over its holding period, after costs (clipped at +200%)", ylabel="trades")
     fig.savefig(FIG / "trades_hist.png")
@@ -229,8 +227,8 @@ def fig_years():
 
 def fig_robust(R):
     fig, axes = plt.subplots(1, 3, figsize=(W, 2.15), sharey=True)
-    specs = [("slots", "K", "number of slots", None), ("hold", "H", "holding period (trading days)", None),
-             ("costs", "cost", "cost per side", pct(2))]
+    specs = [("slots", "K", "number of positions", None), ("hold", "H", "holding period (trading days)", None),
+             ("costs", "mult", "cost model multiple", "x")]
     for ax, (key, col, lab, fmt) in zip(axes, specs):
         rows = R[key]
         xs = [r[col] for r in rows]
@@ -240,12 +238,13 @@ def fig_robust(R):
                 label="QISC out-of-sample")
         ax.plot(xi, [r["by_period"]["heldout"] for r in rows], color=GREY, marker="^", ms=3, lw=0.9, ls="--",
                 label="held-out decade")
-        ax.set_xticks(xi, [f"{v:.2%}" if fmt else f"{v:g}" for v in xs], fontsize=7.3)
+        ax.set_xticks(xi, [f"{v:g}×" if fmt == "x" else f"{v:g}" for v in xs], fontsize=7.3)
         ax.set_xlabel(lab)
         ax.axhline(0, color=INK, lw=0.4)
     axes[0].set_ylabel("CAGR ÷ |max drawdown|")
-    axes[0].legend(loc="upper left", fontsize=7)
-    fig.tight_layout(w_pad=1.2)
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=3, fontsize=7.3, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(w_pad=1.2, rect=(0, 0, 1, 0.9))
     fig.savefig(FIG / "robust.png")
     plt.close(fig)
 

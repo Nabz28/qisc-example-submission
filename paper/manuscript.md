@@ -3,10 +3,10 @@ kicker: QISC 2027 · Preliminary Round Submission
 title: Buying the Pullback in the Cleanest Trends: An EMA Band Strategy for US Equities, 2007–2026
 authors: [Full Name]^1, [Full Name]^2, [Full Name]^3
 affiliations: 1 [Faculty], [University], [City], Indonesia || 2 [Faculty], [University], [City], Indonesia || 3 [Faculty], [University], [City], Indonesia
-meta: Team [Team Name] · Arena: United States · Benchmark: S&P 500 (SPY) · January 2007 to November 2026
-keywords: Momentum; Short-term reversal; Exponential moving average; Technical analysis; Out-of-sample testing; Multiple testing
-abstract: We study a long-only US equity strategy that ranks stocks by the quality of their trend, buys the leaders when the price pulls back into the band between the 20-day exponential moving averages of opens and closes, and sells after 63 trading days. A concentrated five-position version earns 39.1% a year over its July 2017 to September 2026 development sample. Under the QISC constraints (ten positions of at most 10% of capital, a $2 million liquidity floor and 10 basis points per side) and over January 2007 to November 2026, which adds a decade not used in development, the strategy earns 12.4% a year against 10.8% for the S&P 500, with a lower Sharpe ratio (0.54 against 0.62), a 58% drawdown and a monthly excess return that is not statistically different from zero. It beats the index only in the development period. One component survives every test: within the same month, entries on a band touch beat entries into the same trends without one by 1.1 percentage points over five days and 2.3 points over three months, including in the held-out decade. The pullback entry is a robust timing effect; the portfolio's excess return is not.
-titlenote: Submitted to the Quant Investment Strategy Competition (QISC) 2027, Preliminary Round. Every number, table and figure in this paper is produced by `python run.py` in the accompanying code repository (commit `4f9c2e1`).
+meta: Team [Team Name] · Arena: United States · Benchmark: S&P 500 total return (SPY) · January 2007 to November 2026
+keywords: Momentum; Short-term reversal; Exponential moving average; Transaction costs; Out-of-sample testing; Multiple testing
+abstract: We study a long-only US equity strategy that holds five stocks with the cleanest trends, buys each when its price pulls back into the band between the 20-day exponential moving averages of opens and closes, and sells after 63 trading days. Under the QISC cost model, with fees, square-root market impact and every order capped at 5% of the stock's daily traded value, it earns 28.4% a year over its July 2017 to September 2026 development sample. Over January 2007 to November 2026, which adds a decade not used in development, it earns 10.9% a year against 10.8% for the S&P 500, with a lower Sharpe ratio (0.48 against 0.62) and a 64% drawdown. It loses money in the held-out decade, beats the index in the development period and in the 2025–2026 out-of-sample window, and in no period is its excess return statistically different from zero. One component survives every test: within the same month, entries on a band touch beat entries into the same trends without one by 1.2 percentage points over five days and 4.2 points over three months, including in the held-out decade. The pullback entry is a robust timing effect; the portfolio's excess return is not.
+titlenote: Submitted to the Quant Investment Strategy Competition (QISC) 2027, Preliminary Round. Every number, table and figure in this paper is produced by `python run.py` in the accompanying code repository (commit `[hash]`).
 footer: QISC 2027 | [Team Name] | Arena: United States
 ---
 
@@ -14,9 +14,9 @@ footer: QISC 2027 | [Team Name] | Arena: United States
 
 Buying a strong stock on a dip is among the most widely practised trading ideas and among the least rigorously tested. It combines two well-documented regularities. Over horizons of months, returns continue: stocks that have risen tend to keep rising (Jegadeesh and Titman, 1993; Moskowitz et al., 2012). Over days to weeks, returns partly reverse (Jegadeesh, 1990; Lehmann, 1990). An investor who selects strong trends but times the purchase to a short pullback should, in principle, earn the first premium at a better price because of the second.
 
-We turn this idea into a fully specified, point-in-time strategy and evaluate it as an investor would have to trade it. Each day we rank US stocks by the quality of their current trend, measured as the trend's return divided by its typical pullback. Among the top-ranked stocks, we buy one when its price dips into the band between the 20-day exponential moving average (EMA) of opens and of closes and then closes back above it, and we sell every position after 63 trading days. The rules were developed on data from July 2017 onward. We test them on the decade before, which played no role in their design, impose the trading constraints of the QISC casebook, and correct for the number of variants we examine.
+We turn this idea into a fully specified, point-in-time strategy and evaluate it as an investor would have to trade it. Each day we rank US stocks by the quality of their current trend, measured as the trend's return divided by its typical pullback. Among the five top-ranked stocks, we buy one when its price dips into the band between the 20-day exponential moving average (EMA) of opens and of closes and then closes back above it, and we sell every position after 63 trading days. Trading costs follow the QISC cost model, with fees and a square-root market-impact term, and every order is capped at 5% of the stock's daily traded value. The rules were developed on data from July 2017 onward. We test them on the decade before, which played no role in their design, and correct for the number of variants we examine.
 
-The evidence separates a robust component from a fragile one. A concentrated five-position version earns 39.1% a year in its development sample but only 13.6% over 2007–2026. The QISC-compliant portfolio earns 12.4% a year against 10.8% for the S&P 500, with more risk and a monthly excess return whose 95% interval includes zero; it beats the index only in the development period and trails it in the held-out decade and in the 2025–2026 out-of-sample window. The timing rule, by contrast, holds everywhere: compared within the same month, entries on a band touch outperform entries into the same top-ranked trends without one by 1.1 percentage points over five days and 2.3 points over three months, and both effects are significant in the held-out decade.
+The evidence separates a robust component from a fragile one. The strategy earns 28.4% a year in its development sample but 10.9% over 2007–2026, against 10.8% for the S&P 500, with a lower Sharpe ratio and a deeper drawdown. It loses money in the held-out decade, and it beats the index in the 2025–2026 out-of-sample window only through a few extreme winners; in no period is its excess return significant. Realistic costs and the liquidity cap account for more than two points a year of the difference from a frictionless backtest. The timing rule, by contrast, holds everywhere: compared within the same month, entries on a band touch outperform entries into the same top-ranked trends without one by 1.2 percentage points over five days and 4.2 points over three months, and both effects are significant in the held-out decade.
 
 Section 2 sets out the economic rationale and hypotheses, Section 3 the data and sample design, and Section 4 the strategy and evaluation methods. Section 5 reports the main results, Section 6 the robustness tests, Section 7 implementation and risk, and Section 8 concludes.
 
@@ -34,11 +34,11 @@ Technical trading rules have a long and contested record. Moving-average rules a
 
 The strategy makes a selection bet and a timing bet, and we test them separately.
 
-*H1 (selection).* Stocks ranked in the top ten by trend quality earn a positive return in excess of the equal-weighted eligible universe over the following 63 trading days.
+*H1 (selection).* Stocks ranked in the top five by trend quality earn a positive return in excess of the equal-weighted eligible universe over the following 63 trading days.
 
 *H2 (timing).* Within the same month, entries into top-ranked stocks on a band touch earn more over the following 5, 21 and 63 trading days than entries into top-ranked stocks without a touch.
 
-*H3 (portfolio).* A ten-position portfolio that combines both rules earns a positive return in excess of the S&P 500 after costs, in the held-out decade and in the QISC out-of-sample window, not only in the development period.
+*H3 (portfolio).* A five-position portfolio that combines both rules earns a positive return in excess of the S&P 500 after costs, in the held-out decade and in the QISC out-of-sample window, not only in the development period.
 
 ## Data and sample design
 
@@ -74,7 +74,7 @@ $$E_t = \alpha x_t + (1-\alpha)E_{t-1} = \sum_{k\ge 0}\alpha(1-\alpha)^k x_{t-k}
 
 With $N = 20$, today's price receives 9.5% of the weight and the weight halves every 6.9 trading days, so $E_t$ approximates the average price paid by the last month's buyers. We compute the EMA on opens ($E^O_t$) and on closes ($E^C_t$) and call the space between them the band, with upper edge $U_t = \max(E^O_t, E^C_t)$ and lower edge $L_t = \min(E^O_t, E^C_t)$. A close above the band is above where recent buyers both started and ended the day (Figure 1).
 
-![(a) The weight that the EMA20 places on the price $k$ days ago, compared with a 20-day simple moving average. (b) An entry in the baseline portfolio: the close falls into the band, then closes back above it, and the stock is bought at the next open.](../output/figures/ema_band.png)
+![(a) The weight that the EMA20 places on the price $k$ days ago, compared with a 20-day simple moving average. (b) An entry in the portfolio: the close falls into the band, then closes back above it, and the stock is bought at the next open.](../output/figures/ema_band.png)
 
 ### Trend selection
 
@@ -84,173 +84,181 @@ $$\text{R/R}_t = \frac{C_t / C_{r(t)} - 1}{\lvert \bar{D}_t \rvert}, $$ (eq:rr)
 
 where $C_t$ is the close and $\bar{D}_t$ the average depth of the completed pullbacks in the current run: the number of its own typical pullbacks the stock has gained. All quantities use prices up to day $t$, with one exception: a pullback whose low lies before $t$ is counted even if the 5% rebound that confirms it occurs after $t$. Section 6.4 removes this exception.
 
-### Entry, exit and position sizing
+### Entry, exit, sizing and costs
 
 A top-ranked stock generates an entry signal when, within the last five trading days, it closed inside the band or less than 1% above it, and today closes above the band:
 
 $$\min_{s \in [t-4,\,t]} \left( \frac{C_s}{U_s} - 1 \right) \le 1\% \quad \text{and} \quad C_t > U_t. $$ (eq:touch)
 
-Decisions are made at the close of day $t$ and executed at the open of day $t+1$. Each new position receives one tenth of current equity, capped by available cash; positions are not resized while held; every position is sold at the open 63 trading days after entry; and a stock sold in the previous five days cannot be bought again. Uninvested cash earns nothing. Table 2 lists every parameter.
+Decisions are made at the close of day $t$ and executed at the open of day $t+1$. Each new position receives one fifth of current equity, capped by available cash and by 5% of the stock's 60-day median traded value, measured on a notional book that starts at $1 million and compounds. Every position is sold at the open 63 trading days after entry, and a stock sold in the previous five days cannot be bought again. Each order pays fees of 0.05% and market impact of $\max\left(0.05\%,\; 1\% \times \sqrt{Q / \text{ADV}}\right)$, where $Q$ is the order's value and ADV the 60-day median traded value; an order of 1% of ADV therefore costs 0.15% in total and one of 5% about 0.27%. Uninvested cash earns nothing and the portfolio is not levered. Table 2 lists every parameter.
 
-| Parameter | Baseline portfolio | Definition |
+| Parameter | Value | Definition |
 |---|---|---|
-| Universe | US companies, no funds | Price at least $1; 60-day median traded value at least $2 million |
+| Universe | US companies, no funds | Price at least $1; 60-day median traded value at least $0.5 million |
 | Trend | EMA20 and EMA100 | Close above the 20-day and the 100-day EMA of closes |
 | Run | > 10 closes; 60 days; +5% | Closes below EMA20 that end a run; minimum length and log return |
 | Pullbacks | 2 of at least 5% | Zigzag reversals on closes within the current run |
 | Gap filter | 20% / 55% | Maximum share of the run's log return from the best day / best five days |
-| Ranking | Top 10 by R/R | Eq. (eq:rr) |
+| Ranking | Top 5 by R/R | Eq. (eq:rr) |
 | Entry | 5 days, 1% | Window and tolerance of the band touch, Eq. (eq:touch) |
-| Positions | 10 × 10% of equity | Long-only, unlevered; casebook limit of 10% per name |
+| Positions | 5 × 20% of equity | Long-only, unlevered |
+| Liquidity | 5% of ADV | Maximum order size, on the compounding notional book |
 | Exit | 63 trading days | Sold at the open; no other exit |
-| Costs | 10 bp per side | 5 bp fees and 5 bp slippage, the casebook minimum |
+| Costs | Fees + impact | 0.05% fees; impact max(0.05%, 1% × √(Q / ADV)) per side |
 
-Table: Parameters of the baseline portfolio.
-
-The concentrated variant in Section 5.1 differs in three respects: five positions of 20%, the $0.5 million liquidity screen only, and 5 bp per side.
+Table: Parameters of the portfolio.
 
 ### Evaluation
 
-We report the compound annual growth rate (CAGR), annualised volatility, Sharpe and Sortino ratios, maximum drawdown, the ratio of CAGR to maximum drawdown, and beta and annualised alpha from a regression of monthly returns on SPY. Sharpe ratios are computed from daily returns without subtracting a risk-free rate, for the strategy and the benchmark alike. Confidence intervals for the monthly excess return resample whole months 2,000 times. In the event study, a touch event is the first day of an entry signal for a top-ranked stock and a no-touch event is a day on which a top-ranked stock trends above the band without a recent touch, which corresponds to buying immediately. Returns run from the next open, net of costs, and are also measured in excess of the equal-weighted eligible universe. Because no-touch events cluster in strong markets, we compare the two entries within each month and average the monthly differences. Every variant in Section 6 counts as a trial for the deflated Sharpe ratio of Bailey and López de Prado (2014).
+We report the compound annual growth rate (CAGR), annualised volatility, Sharpe and Sortino ratios, maximum drawdown, the ratio of CAGR to maximum drawdown, and beta and annualised alpha from a regression of monthly returns on SPY. Sharpe ratios are computed from daily returns without subtracting a risk-free rate, for the strategy and the benchmark alike. Confidence intervals for the monthly excess return resample whole months 2,000 times. In the event study, a touch event is the first day of an entry signal for a top-ranked stock and a no-touch event is a day on which a top-ranked stock trends above the band without a recent touch, which corresponds to buying immediately. Returns run from the next open, net of 0.10% per side, and are also measured in excess of the equal-weighted eligible universe. Because no-touch events cluster in strong markets, we compare the two entries within each month and average the monthly differences. Every variant in Section 6 counts as a trial for the deflated Sharpe ratio of Bailey and López de Prado (2014).
 
 ## Results
 
 ### From the development sample to twenty years
 
-Table 3 shows how much of the development-sample result survives a longer sample and realistic constraints. The concentrated variant earns 39.1% a year over July 2017 to September 2026, with a monthly excess return of 2.23% whose interval excludes zero. Over 2007–2026, the same rules earn 13.6% a year with a 70% drawdown, most of it in 2008. The QISC-compliant baseline earns 12.4% a year, with a shallower drawdown and the same Sharpe ratio. In both twenty-year columns the excess return over SPY is statistically indistinguishable from zero.
+Table 3 shows how much of the development-sample result survives a longer sample. Over July 2017 to September 2026 the strategy earns 28.4% a year against 15.0% for SPY, with the same Sharpe ratio as the index and a monthly excess return whose interval includes zero. Over 2007–2026 it earns 10.9% a year against 10.8%, with a lower Sharpe ratio and a deeper drawdown. A diversified ten-position version earns slightly more over twenty years, 11.5% a year, with a shallower drawdown.
 
-| Measure | Concentrated, 2017–2026 | Concentrated, 2007–2026 | Baseline, 2007–2026 |
+| Measure | Portfolio, 2017–2026 | Portfolio, 2007–2026 | Ten positions, 2007–2026 |
 |---|---|---|---|
-| Trades | 171 | 361 | 710 |
-| Win rate | 56% | 52% | 54% |
-| Growth per year (SPY) | +39.1% (+15.0%) | +13.6% (+10.8%) | +12.4% (+10.8%) |
-| Sharpe ratio (SPY) | 0.99 (0.85) | 0.53 (0.62) | 0.54 (0.62) |
-| Worst drawdown (SPY) | −47% (−34%) | −70% (−55%) | −58% (−55%) |
-| Monthly return above SPY | +2.23% | +0.65% | +0.29% |
-| 95% interval | [+0.18%, +4.51%] | [−0.57%, +1.87%] | [−0.48%, +1.05%] |
-| Cumulative return (SPY) | +1990% (+262%) | +1167% (+667%) | +918% (+667%) |
+| Trades | 171 | 361 | 712 |
+| Win rate | 56% | 52% | 51% |
+| Growth per year (SPY) | +28.4% (+15.0%) | +10.9% (+10.8%) | +11.5% (+10.8%) |
+| Sharpe ratio (SPY) | 0.85 (0.85) | 0.48 (0.62) | 0.54 (0.62) |
+| Worst drawdown (SPY) | −45% (−34%) | −64% (−55%) | −56% (−55%) |
+| Monthly return above SPY | +1.38% | +0.33% | +0.19% |
+| 95% interval | [−0.43%, +3.38%] | [−0.73%, +1.38%] | [−0.56%, +0.96%] |
+| Cumulative return (SPY) | +896% (+262%) | +686% (+667%) | +766% (+667%) |
 
-Table: The concentrated variant and the baseline portfolio.
-Note: Concentrated: five positions of 20%, $0.5 million liquidity screen, 5 bp per side. Baseline: Table 2. The first column covers 3 July 2017 to 18 September 2026.
+Table: The development sample, the full sample and a diversified version.
+Note: The first column covers 3 July 2017 to 18 September 2026, the full development sample.
 
-The universe restriction to US companies matters in a concentrated portfolio. Without it, the concentrated variant earns 33.7% rather than 39.1% a year over its development sample, because foreign listings occupy scarce positions and displace or delay some of the largest US winners.
+Realistic frictions matter for a concentrated strategy. Table 4 adds them one at a time. With a flat 10 basis points per side and no limit on order size, the same rules earn 13.2% a year. Square-root impact costs remove 0.7 points, and capping each order at 5% of daily traded value removes about 1.5 more, because the strongest trends are often in stocks too thin to absorb a fifth of a growing portfolio.
 
-### The baseline portfolio by period
+| Cost and liquidity assumptions | Per year | Worst drawdown | Sharpe | Monthly excess [95%] |
+|---|---|---|---|---|
+| Flat 10 bp per side, no liquidity cap | +13.2% | −70% | 0.52 | +0.61% [−0.60%, +1.83%] |
+| Impact costs, no liquidity cap | +12.5% | −71% | 0.50 | +0.56% [−0.66%, +1.78%] |
+| Flat 10 bp per side, orders capped at 5% of ADV | +11.4% | −63% | 0.49 | +0.36% [−0.70%, +1.41%] |
+| Impact costs and 5% of ADV cap (the portfolio) | +10.9% | −64% | 0.48 | +0.33% [−0.73%, +1.38%] |
 
-Table 4 and Figure 2 report the baseline portfolio over the full sample and in each period. Over nearly twenty years it returns 918% cumulatively against 667% for SPY, with a beta of 0.97 and a volatility of 29.6%, about one and a half times that of the index. In the held-out decade it trails the index (6.3% against 7.5% a year) with a deeper drawdown. In the development period it beats the index (17.8% against 14.4%) but with a lower Sharpe ratio. In the QISC out-of-sample window it trails again (10.7% against 16.1%) with a beta of 1.39. In no period is the excess return distinguishable from zero: H3 is not supported.
+Table: The effect of trading costs and the liquidity cap, January 2007 to November 2026.
+
+### The portfolio by period
+
+Table 5 and Figure 2 report the portfolio over the full sample and in each period. In the held-out decade it loses money, −0.2% a year against +7.5% for SPY, with a drawdown of 64% from October 2007 to October 2008. In the development period it beats the index, 19.3% against 14.4%, but with a lower Sharpe ratio. In the QISC out-of-sample window it earns 28.3% a year against 16.1%, but with a Sharpe ratio of 0.73 against 0.96, a drawdown of 42% against 19%, and an excess-return interval of −3.68% to +7.36% a month. In no period is the excess return distinguishable from zero: H3 is not supported.
 
 | Measure | Full sample | Held-out | Development | QISC out-of-sample |
 |---|---|---|---|---|
 | *Panel A: Return* | | | | |
-| Growth per year (CAGR) | +12.4% | +6.3% | +17.8% | +10.7% |
+| Growth per year (CAGR) | +10.9% | −0.2% | +19.3% | +28.3% |
 | S&P 500 growth per year | +10.8% | +7.5% | +14.4% | +16.1% |
-| Monthly return above SPY | +0.29% | −0.01% | +0.48% | −0.00% |
-| 95% interval | [−0.48%, +1.05%] | [−0.94%, +0.91%] | [−0.85%, +1.91%] | [−3.72%, +3.85%] |
-| Alpha per year | +3.8% | +1.0% | +4.7% | −5.4% |
-| Cumulative return (SPY) | +918% (+667%) | +90% (+113%) | +242% (+174%) | +21% (+32%) |
+| Monthly return above SPY | +0.33% | −0.47% | +0.67% | +1.68% |
+| 95% interval | [−0.73%, +1.38%] | [−1.54%, +0.60%] | [−1.18%, +2.62%] | [−3.68%, +7.36%] |
+| Alpha per year | +3.5% | −5.1% | +7.2% | +23.7% |
+| Cumulative return (SPY) | +686% (+667%) | −2% (+113%) | +274% (+174%) | +59% (+32%) |
 | *Panel B: Risk* | | | | |
-| Volatility per year | 29.6% | 24.2% | 31.8% | 45.0% |
-| Sharpe ratio (SPY) | 0.54 (0.62) | 0.37 (0.45) | 0.68 (0.81) | 0.45 (0.96) |
-| Sortino ratio | 0.71 | 0.48 | 0.86 | 0.63 |
-| Worst drawdown (SPY) | −58% (−55%) | −58% (−55%) | −52% (−34%) | −35% (−19%) |
-| Beta | 0.97 | 0.86 | 1.08 | 1.39 |
-| Information ratio | 0.16 | −0.01 | 0.25 | −0.00 |
+| Volatility per year | 33.0% | 28.0% | 34.3% | 54.5% |
+| Sharpe ratio (SPY) | 0.48 (0.62) | 0.13 (0.45) | 0.68 (0.81) | 0.73 (0.96) |
+| Sortino ratio | 0.65 | 0.17 | 0.97 | 1.12 |
+| Worst drawdown (SPY) | −64% (−55%) | −64% (−55%) | −45% (−34%) | −42% (−19%) |
+| Beta | 1.05 | 0.95 | 1.07 | 0.91 |
+| Information ratio | 0.14 | −0.26 | 0.27 | 0.43 |
 | *Panel C: Trades* | | | | |
-| Trades | 710 | 366 | 265 | 62 |
-| Win rate | 54% | 54% | 54% | 50% |
-| Average win / average loss | +22.4% / −16.3% | +18.1% / −15.5% | +25.4% / −16.9% | +35.8% / −21.6% |
-| Mean / median trade | +4.4% / +2.0% | +2.5% / +1.6% | +6.0% / +2.1% | +7.1% / −0.9% |
+| Trades | 361 | 187 | 138 | 31 |
+| Win rate | 52% | 50% | 54% | 55% |
+| Average win / average loss | +28.9% / −18.9% | +17.9% / −18.3% | +30.3% / −19.3% | +52.4% / −23.3% |
+| Mean / median trade | +6.0% / +1.4% | −0.3% / −0.7% | +7.6% / +2.5% | +18.2% / +3.0% |
 
-Table: Performance of the baseline portfolio, January 2007 to November 2026.
+Table: Performance of the portfolio, January 2007 to November 2026.
 Note: Each period is a separate portfolio that starts in cash. Intervals resample whole months. Alpha and beta are from a regression of monthly returns on SPY. Annual and cumulative returns are in Appendix A.
 
-![Growth of $1 on a log scale (top) and drawdown from the previous peak (bottom), baseline portfolio and SPY. Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/equity.png)
+![Growth of $1 on a log scale (top) and drawdown from the previous peak (bottom), portfolio and SPY. Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/equity.png)
 
-The losses are concentrated in abrupt trend reversals: 2008 (−53.0% against −36.8% for SPY), 2011 (−20.2% against +1.9%) and 2025 (−10.7% against +17.7%). Trade returns are strongly skewed (Figure 3): the median trade earns 2.0% and the mean 4.4%, seven of 710 trades more than doubled, and 52 lost at least 30%. The ten best trades account for 44% of summed trade returns.
+The portfolio beats SPY in only eight of twenty calendar years. Its returns are concentrated in a few years and a few names: 2020 (+57.0%), 2024 (+51.5%) and 2026 to date (+195.4%), when the largest winners more than doubled or quadrupled. Trade returns are strongly skewed (Figure 3): the median trade earns 1.4% and the mean 6.0%, eleven of 361 trades more than doubled, and 36 lost at least 30%. The ten best trades account for 78% of summed trade returns.
 
 ![Return of each trade over its holding period, after costs. Returns above +200% are shown at +200%.](../output/figures/trades_hist.png)
 
 ### The timing effect
 
-Table 5 reports the event study. Over 63 trading days, touch entries earn 5.1%, or 2.6 percentage points above the equal-weighted universe, and no-touch entries into the same top-ranked trends earn 4.2%, or 2.0 points above it. Both intervals exclude zero, so the selection effect (H1) is positive, but it is concentrated in the development period: in the held-out decade neither group beats the universe significantly.
+Table 6 reports the event study. Over 63 trading days, touch entries earn 5.0%, or 2.6 percentage points above the equal-weighted universe, with an interval that excludes zero; no-touch entries into the same top-ranked trends earn 4.4%, or 2.1 points above it, with an interval that just includes zero. The selection effect (H1) is therefore positive but weak, and it is concentrated in the development period: in the held-out decade neither group beats the universe.
 
 | Horizon | Touch: return | Touch: above universe [95%] | No touch: return | No touch: above universe [95%] | Touch minus no touch, same month [95%] |
 |---|---|---|---|---|---|
 | *Panel A: Full sample* | | | | | |
-| 5 days | +0.3% | +0.1% [−0.2%, +0.4%] | −0.0% | −0.2% [−0.4%, +0.1%] | +1.1% [+0.7%, +1.5%] |
-| 21 days | +1.5% | +0.9% [+0.2%, +1.6%] | +1.0% | +0.3% [−0.5%, +1.2%] | +1.7% [+1.0%, +2.5%] |
-| 63 days | +5.1% | +2.6% [+1.1%, +4.3%] | +4.2% | +2.0% [+0.4%, +3.7%] | +2.3% [+1.0%, +3.5%] |
+| 5 days | +0.2% | −0.0% [−0.5%, +0.4%] | −0.1% | −0.3% [−0.6%, +0.0%] | +1.2% [+0.7%, +1.9%] |
+| 21 days | +1.5% | +1.0% [−0.1%, +2.1%] | +0.7% | +0.0% [−1.1%, +1.1%] | +2.6% [+1.4%, +3.8%] |
+| 63 days | +5.0% | +2.6% [+0.4%, +4.8%] | +4.4% | +2.1% [−0.2%, +4.3%] | +4.2% [+1.8%, +6.8%] |
 | *Panel B: By period, 5 days* | | | | | |
-| Held-out | +0.2% | −0.1% [−0.4%, +0.2%] | −0.1% | −0.3% [−0.6%, −0.0%] | +1.0% [+0.7%, +1.4%] |
-| Development | +0.3% | +0.3% [−0.2%, +0.8%] | +0.0% | −0.1% [−0.5%, +0.3%] | +1.2% [+0.4%, +2.1%] |
-| QISC out-of-sample | +0.5% | +0.5% [−0.8%, +1.8%] | +0.1% | +0.0% [−1.2%, +1.1%] | +0.7% [−0.6%, +2.1%] |
+| Held-out | −0.0% | −0.4% [−0.9%, +0.0%] | −0.1% | −0.3% [−0.7%, +0.1%] | +1.0% [+0.4%, +1.5%] |
+| Development | +0.4% | +0.4% [−0.3%, +1.3%] | −0.2% | −0.3% [−0.9%, +0.1%] | +1.8% [+0.6%, +3.2%] |
+| QISC out-of-sample | +0.2% | +0.1% [−1.5%, +1.9%] | +0.1% | −0.0% [−1.4%, +1.2%] | +0.4% [−1.8%, +2.4%] |
 | *Panel C: By period, 63 days* | | | | | |
-| Held-out | +3.9% | +1.2% [−0.4%, +2.8%] | +2.2% | −0.1% [−1.5%, +1.2%] | +2.1% [+0.2%, +3.9%] |
-| Development | +5.5% | +3.5% [+1.1%, +5.9%] | +4.2% | +2.5% [+0.4%, +4.6%] | +2.6% [+0.8%, +4.5%] |
-| QISC out-of-sample | +11.0% | +8.0% [−2.8%, +20.7%] | +13.8% | +10.8% [−0.9%, +22.8%] | +1.8% [−1.9%, +5.7%] |
+| Held-out | +2.4% | −0.2% [−2.5%, +2.0%] | +0.9% | −1.5% [−3.5%, +0.6%] | +2.8% [+0.1%, +5.4%] |
+| Development | +7.3% | +5.2% [+1.9%, +8.9%] | +5.1% | +3.2% [+0.5%, +5.9%] | +5.2% [+1.6%, +9.1%] |
+| QISC out-of-sample | +11.8% | +8.6% [−5.5%, +26.8%] | +19.2% | +15.8% [−0.4%, +32.6%] | +7.7% [−5.8%, +26.5%] |
 
-Table: Event study: entries into top-ten stocks with and without a band touch.
-Note: 4,163 touch and 26,983 no-touch events. Returns run from the next open, net of 10 bp per side. "Above universe" subtracts the equal-weighted return of all eligible stocks over the same days. The last column is the mean over months (226 to 229 in the full sample) of the within-month difference between touch and no-touch returns.
+Table: Event study: entries into top-five stocks with and without a band touch.
+Note: 2,151 touch and 15,092 no-touch events. Returns run from the next open, net of 0.10% per side. "Above universe" subtracts the equal-weighted return of all eligible stocks over the same days. The last column is the mean over months of the within-month difference between touch and no-touch returns.
 
-The timing effect (H2) is robust. Within the same month, touch entries beat no-touch entries by 1.1 percentage points over five days, 1.7 over 21 days and 2.3 over 63 days, with every interval excluding zero. The effect is significant in the held-out decade, +1.0 points over five days and +2.1 over 63 days, and has the same sign in the out-of-sample window, where 23 months leave the intervals wide. In pooled averages (Figure 4) the gap widens steadily to 0.9 points at 63 days; it is smaller than the month-matched difference because no-touch entries cluster in strong markets.
+The timing effect (H2) is robust. Within the same month, touch entries beat no-touch entries by 1.2 percentage points over five days, 2.6 over 21 days and 4.2 over 63 days, with every interval excluding zero. The effect is significant in the held-out decade, +1.0 points over five days and +2.8 over 63 days, and has the same sign in the out-of-sample window, where less than two years of events leave the intervals wide. In pooled averages (Figure 4) the gap is smaller, 0.6 points at 63 days, because no-touch entries cluster in strong markets.
 
-![Mean cumulative return from the entry open for top-ten stocks bought on a band touch and without one, pooled over all events.](../output/figures/path.png)
+![Mean cumulative return from the entry open for top-five stocks bought on a band touch and without one, pooled over all events.](../output/figures/path.png)
 
 ## Robustness
 
 ### Exit rules
 
-A time-based exit is often defended on three grounds: momentum returns accrue slowly, a few large winners carry the strategy, and price-based exits cannot distinguish a pullback from the end of a trend. Table B.1 compares eight alternatives on the same entries. Exits on closes below the band are clearly worse, consistent with that argument. A 40% stop-loss, however, raises the CAGR from 12.4% to 14.8% and the ratio of CAGR to drawdown from 0.21 to 0.29, and an exit on a heavy-volume down day performs almost as well. The evidence on stop-losses in long-only portfolios is mixed: they can reduce risk but often at a cost in return (Lei and Li, 2009; Kaminski and Lo, 2014). We do not adopt either alternative, because both were selected after seeing the results and would require their own out-of-sample test.
+A time-based exit is often defended on three grounds: momentum returns accrue slowly, a few large winners carry the strategy, and price-based exits cannot distinguish a pullback from the end of a trend. Table B.1 compares eight alternatives on the same entries. Exits on closes below the band are clearly worse, consistent with that argument. An exit on a heavy-volume down day, however, raises the CAGR from 10.9% to 14.8% and the ratio of CAGR to drawdown from 0.17 to 0.28, and a 25% stop-loss also improves on the time exit. The evidence on stop-losses in long-only portfolios is mixed: they can reduce risk but often at a cost in return (Lei and Li, 2009; Kaminski and Lo, 2014). We do not adopt either alternative, because both were selected after seeing the results and would require their own out-of-sample test.
 
 ### Position count, holding period and costs
 
-Figure 5 and Table B.2 vary one parameter at a time. With three positions the portfolio loses 87% at its worst; with five, 71%. Additional positions mainly reduce the drawdown, and twenty give the best ratio of CAGR to drawdown (0.28), but the ranking of portfolio sizes is unstable across periods. The holding period matters little between 42 and 126 days, while 21 days is clearly worse. Costs matter little: the portfolio trades about 7.2 times its capital a year, counting purchases and sales, so each additional basis point per side costs about 0.07 percentage points a year, and even 50 bp leaves 9.4%.
+Figure 5 and Table B.2 vary one parameter at a time. With three positions the portfolio loses 91% at its worst; with five, 64%. Additional positions mainly reduce the drawdown, to 48% with twenty, while the CAGR stays between 9% and 12% for any count from five to twenty. A 42-day holding period earns more than 63 days (12.5% a year), and longer periods earn less. Costs matter moderately: the portfolio trades about 7.3 times its capital a year, counting purchases and sales, at an average of 0.17% per side, so doubling the cost model lowers the CAGR to 10.2% and five times the cost model to 8.1%.
 
-![CAGR divided by the absolute maximum drawdown as one parameter of the baseline portfolio varies, for the full sample, the held-out decade and the QISC out-of-sample window.](../output/figures/robust.png)
+![CAGR divided by the absolute maximum drawdown as one parameter of the portfolio varies, for the full sample, the held-out decade and the QISC out-of-sample window.](../output/figures/robust.png)
 
 ### Entry parameters
 
-Table B.3 varies the touch window, the tolerance above the band and the EMA span, with the trend screen unchanged. The baseline setting is not the best cell: a ten-day window with a close strictly inside the band raises the CAGR to 15.9%. Neighbouring cells, however, show no smooth pattern, and the best tolerance changes from one window to the next, which points to noise rather than a better parameter. Spans from 10 to 40 days give CAGRs between 8.0% and 14.5%, with the shortest span clearly the worst.
+Table B.3 varies the touch window, the tolerance above the band and the EMA span, with the trend screen unchanged. The baseline setting is not the best cell: requiring a close strictly inside the band raises the CAGR to 18.9%, and the strict touch is the best tolerance for every window. The pattern is not monotonic, however: a 1% tolerance is worse than both 0% and 2% in every window, and the other cells range from 5.0% to 14.7%. A five-position portfolio is path-dependent, since one missed entry changes every later one, so we read the grid as noise around a positive effect rather than evidence for a better parameter, and we do not switch to the strict touch after seeing it. Spans from 10 to 40 days give CAGRs between 7.7% and 13.4%.
 
 ### Stress tests
 
-Table 6 reports the stress tests described in the casebook and four further checks. Delaying every trade by one day does not hurt (13.0% a year). Removing the five largest contributors lowers the return to 11.7% and the monthly excess to 0.22%. Buying the same stocks without waiting for a touch earns 11.9% over the full sample but only 0.7% a year in the out-of-sample window, against 10.7% for the baseline: the timing rule is what separates the two. Counting pullbacks only once confirmed lowers the return to 10.4%, almost entirely in the development period, and leaves every conclusion unchanged. Starting the portfolio in different months moves the held-out CAGR between 3.3% and 7.6% and the development CAGR between 12.0% and 18.7%.
+Table 7 reports the stress tests described in the casebook and four further checks. Delaying every trade by one day lowers the return to 10.3% a year. Removing the five largest contributors (AXTI, SNDK, NUTX, APPS and CELH) lowers it to 5.9% and turns the monthly excess return negative. Buying the same stocks without waiting for a touch earns 9.8% over the full sample and loses 12.3% a year in the out-of-sample window, against a gain of 28.3% for the portfolio: the timing rule is what separates the two. Counting pullbacks only once confirmed lowers the return to 9.8%. Starting the portfolio in different months moves the held-out CAGR between −3.3% and +4.9% and the development CAGR between 12.2% and 22.3%.
 
 | Test | Per year | Worst drawdown | Sharpe | Monthly excess [95%] |
 |---|---|---|---|---|
-| Baseline portfolio | +12.4% | −58% | 0.54 | +0.29% [−0.5%, +1.1%] |
-| Execution one day later | +13.0% | −56% | 0.56 | +0.32% [−0.5%, +1.1%] |
-| Without the five largest contributors | +11.7% | −58% | 0.53 | +0.22% [−0.5%, +1.0%] |
-| Bought without a touch | +11.9% | −58% | 0.51 | +0.32% [−0.6%, +1.2%] |
-| Pullbacks counted only once confirmed | +10.4% | −58% | 0.48 | +0.15% [−0.7%, +0.9%] |
-| New positions only while SPY is above its 200-day average | +13.2% | −54% | 0.59 | +0.32% [−0.5%, +1.1%] |
-| Twelve start months, held-out decade | +3.3% to +7.6% | −52% to −60% | | |
-| Twelve start months, development period | +12.0% to +18.7% | −50% to −56% | | |
+| Portfolio | +10.9% | −64% | 0.48 | +0.33% [−0.7%, +1.4%] |
+| Execution one day later | +10.3% | −63% | 0.46 | +0.29% [−0.8%, +1.4%] |
+| Without the five largest contributors | +5.9% | −64% | 0.34 | −0.16% [−1.1%, +0.8%] |
+| Bought without a touch | +9.8% | −69% | 0.44 | +0.22% [−0.8%, +1.2%] |
+| Pullbacks counted only once confirmed | +9.8% | −64% | 0.45 | +0.26% [−0.8%, +1.3%] |
+| New positions only while SPY is above its 200-day average | +12.0% | −45% | 0.54 | +0.26% [−0.6%, +1.2%] |
+| Twelve start months, held-out decade | −3.3% to +4.9% | −49% to −69% | | |
+| Twelve start months, development period | +12.2% to +22.3% | −44% to −58% | | |
 
 Table: Stress tests, January 2007 to November 2026.
 Note: The market filter is exploratory: it was specified after the 2008 drawdown had been observed and is counted as a trial in Section 6.5.
 
-The market filter is the most tempting fix. Opening positions only while SPY is above its 200-day average, which held on 79% of days, cuts the worst drawdown from 58% to 54% and raises the Sharpe ratio to 0.59, still below SPY's, without creating a significant excess return.
+The market filter is the most tempting fix. Opening positions only while SPY is above its 200-day average, which held on 79% of days, cuts the worst drawdown from 64% to 45% and raises the Sharpe ratio to 0.54, still below SPY's, without creating a significant excess return.
 
 ### Multiple testing
 
-Section 6 reports 45 variants, counting the baseline each time it appears. If none had any true edge, the expected maximum annualised Sharpe ratio across 45 trials with the observed dispersion would be 0.17. The deflated Sharpe ratio of the baseline, the probability that its true Sharpe ratio exceeds that benchmark after allowing for skewness and fat tails, is 0.951, just above the conventional 0.95. It reflects mostly the portfolio's equity exposure; its advantage over SPY is not significant (Table 4).
+Section 6 reports 45 variants, counting the baseline each time it appears. If none had any true edge, the expected maximum annualised Sharpe ratio across 45 trials with the observed dispersion would be 0.20. The deflated Sharpe ratio of the portfolio, the probability that its true Sharpe ratio exceeds that benchmark after allowing for skewness and fat tails, is 0.896, below the conventional 0.95.
 
 ## Implementation and risk
 
-**Capacity.** At entry, the median stock bought trades $31.1 million a day (60-day median) and the 5th percentile $2.7 million. Keeping each position below 5% of that value, as the casebook requires, limits a position to about $130,000 in the least liquid names and $1.6 million in the median name. Positions are sized on a compounding book that starts at $1 million: 97% of entries meet the 5% limit while the book is below $2 million, but only about 70% in 2023–2025, when it has grown to several million. A larger book would have to raise the liquidity floor as it grows, which would change the universe.
+**Capacity.** The median order is 1.1% of the stock's 60-day median traded value, and 21% of orders are cut back by the 5% cap. At entry, the median stock bought trades $23.4 million a day and the 5th percentile $1.0 million, where the cap limits a position to about $50,000. The cap binds more as the notional book compounds; a larger book would face a smaller effective universe and higher impact costs.
 
-**Execution.** All trades are market-on-open orders placed after the previous close, so the strategy needs one decision a day. Because every trade happens at the open, returns combine overnight and intraday components, which respond differently to news (Bahcivan, 2025); at a holding period of 63 days, the opening spread in small stocks, not commissions, is the binding cost.
+**Execution.** All trades are market-on-open orders placed after the previous close, so the strategy needs one decision a day. Because every trade happens at the open, returns combine overnight and intraday components, which respond differently to news (Bahcivan, 2025). Average costs are 0.17% per side, most of it market impact in the smaller names.
 
-**Risk.** Beta is 0.97 over the full sample and 1.39 in the out-of-sample window, and volatility is about one and a half times that of SPY. Investors should expect a drawdown of 50% to 60% and about one trade in fourteen to lose 30% or more. Losses cluster in abrupt market reversals, the momentum-crash pattern of Daniel and Moskowitz (2016); volatility scaling, which helps conventional momentum portfolios (Barroso and Santa-Clara, 2015), is a natural next test.
+**Risk.** Beta is 1.05 and volatility 33%, about 1.7 times that of SPY. Investors should expect a drawdown of 50% to 70% and about one trade in ten to lose 30% or more. Losses cluster in market sell-offs and abrupt reversals, the momentum-crash pattern of Daniel and Moskowitz (2016): the worst calendar years are 2008 (−54.7%), 2018, 2022 and 2025, and 2025 is also the worst year relative to the index, 34 points behind it. Volatility scaling, which helps conventional momentum portfolios (Barroso and Santa-Clara, 2015), is a natural next test.
 
-**Kill criteria.** We would stop trading if the drawdown exceeded 65%, beyond any backtest path, or if the month-matched advantage of touch over no-touch entries turned negative over a trailing 24-month window.
+**Kill criteria.** We would stop trading if the drawdown exceeded 70%, beyond any backtest path, or if the month-matched advantage of touch over no-touch entries turned negative over a trailing 24-month window.
 
 ## Conclusion
 
-A concentrated version of this strategy earns 39.1% a year in the sample on which it was developed. Over twenty years and under the QISC constraints, the portfolio earns 12.4% a year against 10.8% for the S&P 500, with more risk and no significant excess return; it beats the index only in the development period. Its design choices, the five-position portfolio and the time-only exit among them, do not carry over to the held-out decade.
+This strategy earns 28.4% a year in the sample on which it was developed. Over twenty years, with realistic costs and a liquidity cap, it earns 10.9% a year against 10.8% for the S&P 500, with more risk and no significant excess return; it loses money in the held-out decade and beats the index after 2017 through a handful of extreme winners. Its design choices, the five-position portfolio and the time-only exit among them, do not carry over to the held-out decade.
 
-The pullback entry does. Waiting for a stock in a strong trend to dip into its 20-day EMA band and close back above it improves the entry by about one percentage point over the following week and two points over three months, relative to buying a comparable stock in the same month without the pullback, before as well as after the development period. We therefore recommend the band touch as an entry filter to combine with other selection rules, rather than the portfolio in its current form, and would test every further refinement, including the exits and market filter in Section 6, on data not used to choose it.
+The pullback entry does. Waiting for a stock in a strong trend to dip into its 20-day EMA band and close back above it improves the entry by about one percentage point over the following week and four points over three months, relative to buying a comparable stock in the same month without the pullback, before as well as after the development period. We therefore recommend the band touch as an entry filter to combine with other selection rules, rather than the portfolio in its current form, and would test every further refinement, including the exits and market filter in Section 6, on data not used to choose it.
 
 ## Statement of Originality and AI Disclosure
 
@@ -289,51 +297,51 @@ REF: Tsinaslanidis, P., Guijarro, F., Voukelatos, N., 2022. Automatic identifica
 
 ## Appendix A. Annual and cumulative returns
 
-Table A.1 lists calendar-year returns. Figure A.1 shows the cumulative return of the baseline portfolio and SPY over the full sample, together with the portfolio's value relative to SPY, which is negative from 2011 to 2017 and stays positive only from 2021 onward. Figure A.2 repeats the comparison for each period, with each portfolio starting in cash.
+Table A.1 lists calendar-year returns. Figure A.1 shows the cumulative return of the portfolio and SPY over the full sample, together with the portfolio's value relative to SPY. Figure A.2 repeats the comparison for each period, with each portfolio starting in cash.
 
 | Year | Portfolio | SPY | Difference |
 |---|---|---|---|
-| 2007 | +34.6% | +5.3% | +29.3% |
-| 2008 | −53.0% | −36.8% | −16.3% |
-| 2009 | +39.7% | +26.4% | +13.3% |
-| 2010 | +7.4% | +15.1% | −7.6% |
-| 2011 | −20.2% | +1.9% | −22.1% |
-| 2012 | +20.5% | +16.0% | +4.5% |
-| 2013 | +46.3% | +32.3% | +14.0% |
-| 2014 | +13.4% | +13.5% | −0.1% |
-| 2015 | −7.3% | +1.2% | −8.6% |
-| 2016 | +24.4% | +12.0% | +12.4% |
-| 2017 | +28.7% | +21.7% | +7.0% |
-| 2018 | −7.5% | −4.6% | −3.0% |
-| 2019 | +33.2% | +31.2% | +2.0% |
-| 2020 | +33.0% | +18.3% | +14.6% |
-| 2021 | +24.2% | +28.7% | −4.6% |
-| 2022 | −0.6% | −18.2% | +17.6% |
-| 2023 | +38.1% | +26.2% | +11.9% |
-| 2024 | +17.2% | +24.9% | −7.7% |
-| 2025 | −10.7% | +17.7% | −28.4% |
-| 2026* | +55.2% | +11.7% | +43.5% |
+| 2007 | +8.8% | +5.3% | +3.4% |
+| 2008 | −54.7% | −36.8% | −17.9% |
+| 2009 | +32.7% | +26.4% | +6.4% |
+| 2010 | +4.7% | +15.1% | −10.3% |
+| 2011 | −7.5% | +1.9% | −9.4% |
+| 2012 | +4.7% | +16.0% | −11.3% |
+| 2013 | +22.4% | +32.3% | −9.9% |
+| 2014 | +13.0% | +13.5% | −0.4% |
+| 2015 | −11.0% | +1.2% | −12.2% |
+| 2016 | +5.0% | +12.0% | −7.0% |
+| 2017 | +39.9% | +21.7% | +18.1% |
+| 2018 | −18.0% | −4.6% | −13.4% |
+| 2019 | +12.3% | +31.2% | −18.9% |
+| 2020 | +57.0% | +18.3% | +38.6% |
+| 2021 | +9.4% | +28.7% | −19.4% |
+| 2022 | −17.4% | −18.2% | +0.7% |
+| 2023 | +34.3% | +26.2% | +8.1% |
+| 2024 | +51.5% | +24.9% | +26.6% |
+| 2025 | −16.4% | +17.7% | −34.1% |
+| 2026* | +195.4% | +11.7% | +183.7% |
 
-Table: Calendar-year returns of the baseline portfolio.
-Note: The portfolio runs continuously from January 2007 and beats SPY in eleven of twenty years. * 2026 to 11 November.
+Table: Calendar-year returns of the portfolio.
+Note: The portfolio runs continuously from January 2007 and beats SPY in eight of twenty years. * 2026 to 11 November.
 
-![Cumulative return of the baseline portfolio and SPY, January 2007 to November 2026 (top), and the portfolio's value relative to SPY (bottom). Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/cumulative.png)
+![Cumulative return of the portfolio and SPY, January 2007 to November 2026 (top), and the portfolio's value relative to SPY (bottom). Shaded regions mark the held-out decade and the QISC out-of-sample window.](../output/figures/cumulative.png)
 
-![Cumulative return of the baseline portfolio and SPY in each period: (a) held-out decade, (b) development period, (c) QISC out-of-sample window. Each portfolio starts in cash on the first day of its period, as in Table 4.](../output/figures/cumulative_periods.png)
+![Cumulative return of the portfolio and SPY in each period: (a) held-out decade, (b) development period, (c) QISC out-of-sample window. Each portfolio starts in cash on the first day of its period, as in Table 5.](../output/figures/cumulative_periods.png)
 
 ## Appendix B. Robustness tables
 
 | Exit rule (entries unchanged) | Trades | Win rate | Per year | Worst drawdown | CAGR ÷ drawdown | Sharpe |
 |---|---|---|---|---|---|---|
-| Hold 63 days (baseline) | 710 | 54% | +12.4% | −58% | 0.21 | 0.54 |
-| Close below the band | 2,972 | 32% | +3.6% | −46% | 0.08 | 0.27 |
-| Three closes below the band | 1,942 | 35% | +6.5% | −56% | 0.12 | 0.38 |
-| Five closes below the band | 1,452 | 37% | +8.7% | −45% | 0.19 | 0.45 |
-| Heavy-volume down day (≥ 3×) | 995 | 52% | +14.7% | −52% | 0.28 | 0.62 |
-| Heavy-volume down day (≥ 5×) | 809 | 52% | +14.3% | −54% | 0.26 | 0.61 |
-| Three closes below the band or volume ≥ 3× | 2,122 | 36% | +5.9% | −56% | 0.11 | 0.36 |
-| Stop at −25% | 782 | 52% | +10.9% | −47% | 0.23 | 0.51 |
-| Stop at −40% | 721 | 54% | +14.8% | −51% | 0.29 | 0.63 |
+| Hold 63 days (baseline) | 361 | 52% | +10.9% | −64% | 0.17 | 0.48 |
+| Close below the band | 1,517 | 31% | +2.9% | −64% | 0.04 | 0.24 |
+| Three closes below the band | 1,006 | 35% | +8.2% | −73% | 0.11 | 0.42 |
+| Five closes below the band | 784 | 36% | +9.7% | −64% | 0.15 | 0.47 |
+| Heavy-volume down day (≥ 3×) | 526 | 52% | +14.8% | −52% | 0.28 | 0.61 |
+| Heavy-volume down day (≥ 5×) | 414 | 52% | +7.7% | −58% | 0.13 | 0.39 |
+| Three closes below the band or volume ≥ 3× | 1,110 | 38% | +10.1% | −66% | 0.15 | 0.49 |
+| Stop at −25% | 407 | 50% | +12.7% | −56% | 0.23 | 0.55 |
+| Stop at −40% | 376 | 51% | +10.7% | −61% | 0.17 | 0.48 |
 
 Table: Exit rules, January 2007 to November 2026.
 Note: Exits other than the clock are decided on a close and executed at the next open; every position is sold after 63 days at the latest. Heavy-volume down day: a lower close on volume of at least the stated multiple of its 50-day median.
@@ -341,54 +349,54 @@ Note: Exits other than the clock are decided on a close and executed at the next
 | Variant | Trades | Per year | Worst drawdown | Sharpe | CAGR ÷ drawdown: full | Held-out | Development | QISC OOS |
 |---|---|---|---|---|---|---|---|---|
 | *Panel A: Number of positions* | | | | | | | | |
-| 3 | 217 | +7.2% | −87% | 0.38 | 0.08 | −0.14 | 0.59 | 0.68 |
-| 5 | 360 | +12.8% | −71% | 0.52 | 0.18 | 0.03 | 0.31 | 0.64 |
-| 8 | 569 | +13.3% | −62% | 0.56 | 0.22 | 0.17 | 0.29 | 0.74 |
-| 10 (baseline) | 710 | +12.4% | −58% | 0.54 | 0.21 | 0.11 | 0.34 | 0.30 |
-| 12 | 846 | +11.3% | −56% | 0.52 | 0.20 | 0.11 | 0.35 | 0.32 |
-| 15 | 1,033 | +11.4% | −49% | 0.54 | 0.23 | 0.19 | 0.22 | 0.50 |
-| 20 | 1,348 | +12.6% | −45% | 0.60 | 0.28 | 0.20 | 0.26 | 0.89 |
+| 3 | 213 | +7.4% | −91% | 0.38 | 0.08 | −0.19 | 0.63 | 0.72 |
+| 5 (baseline) | 361 | +10.9% | −64% | 0.48 | 0.17 | −0.00 | 0.43 | 0.68 |
+| 8 | 577 | +11.1% | −59% | 0.51 | 0.19 | 0.11 | 0.25 | 0.76 |
+| 10 | 712 | +11.5% | −56% | 0.54 | 0.20 | 0.15 | 0.29 | 0.17 |
+| 12 | 847 | +9.8% | −52% | 0.49 | 0.19 | 0.13 | 0.30 | 0.39 |
+| 15 | 1,048 | +9.1% | −53% | 0.46 | 0.17 | 0.06 | 0.30 | 0.45 |
+| 20 | 1,362 | +10.2% | −48% | 0.52 | 0.21 | 0.19 | 0.22 | 0.95 |
 | *Panel B: Holding period (trading days)* | | | | | | | | |
-| 21 | 1,737 | +6.9% | −51% | 0.39 | 0.14 | 0.23 | 0.06 | 0.46 |
-| 42 | 1,017 | +11.8% | −54% | 0.53 | 0.22 | 0.30 | 0.23 | 0.31 |
-| 63 (baseline) | 710 | +12.4% | −58% | 0.54 | 0.21 | 0.11 | 0.34 | 0.30 |
-| 84 | 544 | +10.3% | −63% | 0.48 | 0.16 | 0.03 | 0.32 | 1.07 |
-| 126 | 373 | +13.1% | −69% | 0.55 | 0.19 | 0.02 | 0.38 | 0.18 |
-| *Panel C: Cost per side* | | | | | | | | |
-| 5 bp | 710 | +12.8% | −58% | 0.56 | 0.22 | 0.11 | 0.35 | 0.31 |
-| 10 bp (baseline) | 710 | +12.4% | −58% | 0.54 | 0.21 | 0.11 | 0.34 | 0.30 |
-| 20 bp | 710 | +11.6% | −59% | 0.52 | 0.20 | 0.10 | 0.32 | 0.27 |
-| 30 bp | 710 | +10.9% | −59% | 0.50 | 0.18 | 0.08 | 0.31 | 0.25 |
-| 50 bp | 710 | +9.4% | −60% | 0.45 | 0.16 | 0.06 | 0.27 | 0.20 |
+| 21 | 885 | +9.7% | −49% | 0.48 | 0.20 | 0.05 | 0.40 | 0.37 |
+| 42 | 513 | +12.5% | −52% | 0.55 | 0.24 | 0.19 | 0.30 | 0.39 |
+| 63 (baseline) | 361 | +10.9% | −64% | 0.48 | 0.17 | −0.00 | 0.43 | 0.68 |
+| 84 | 276 | +8.7% | −70% | 0.41 | 0.12 | −0.04 | 0.38 | 0.93 |
+| 126 | 189 | +5.6% | −70% | 0.33 | 0.08 | 0.02 | 0.22 | 0.10 |
+| *Panel C: Cost model multiple* | | | | | | | | |
+| 0.5× | 361 | +11.3% | −63% | 0.49 | 0.18 | 0.00 | 0.44 | 0.69 |
+| 1× (baseline) | 361 | +10.9% | −64% | 0.48 | 0.17 | −0.00 | 0.43 | 0.68 |
+| 2× | 361 | +10.2% | −64% | 0.46 | 0.16 | −0.02 | 0.40 | 0.65 |
+| 3× | 361 | +9.5% | −64% | 0.44 | 0.15 | −0.03 | 0.38 | 0.63 |
+| 5× | 361 | +8.1% | −64% | 0.40 | 0.13 | −0.05 | 0.33 | 0.58 |
 
 Table: Position count, holding period and costs.
-Note: Each row changes one parameter of the baseline. The last three columns are separate portfolios per period.
+Note: Each row changes one parameter of the baseline. Panel C scales both fees and market impact. The last three columns are separate portfolios per period.
 
 | Touch window or EMA span | Tolerance | Trades | Per year | Worst drawdown | CAGR ÷ drawdown | Sharpe |
 |---|---|---|---|---|---|---|
 | *Panel A: Touch window* | | | | | | |
-| 3 days | 0% | 650 | +11.9% | −50% | 0.24 | 0.54 |
-| 3 days | 1% | 692 | +11.8% | −54% | 0.22 | 0.53 |
-| 3 days | 2% | 715 | +11.6% | −55% | 0.21 | 0.52 |
-| 5 days | 0% | 673 | +13.4% | −56% | 0.24 | 0.58 |
-| 5 days (baseline) | 1% | 710 | +12.4% | −58% | 0.21 | 0.54 |
-| 5 days | 2% | 724 | +13.7% | −58% | 0.24 | 0.58 |
-| 10 days | 0% | 701 | +15.9% | −49% | 0.33 | 0.65 |
-| 10 days | 1% | 721 | +11.5% | −54% | 0.21 | 0.51 |
-| 10 days | 2% | 729 | +12.4% | −49% | 0.25 | 0.54 |
+| 3 days | 0% | 330 | +11.4% | −54% | 0.21 | 0.50 |
+| 3 days | 1% | 354 | +6.4% | −63% | 0.10 | 0.35 |
+| 3 days | 2% | 365 | +7.5% | −70% | 0.11 | 0.39 |
+| 5 days | 0% | 347 | +18.9% | −45% | 0.42 | 0.75 |
+| 5 days (baseline) | 1% | 361 | +10.9% | −64% | 0.17 | 0.48 |
+| 5 days | 2% | 369 | +14.7% | −57% | 0.26 | 0.59 |
+| 10 days | 0% | 360 | +12.7% | −54% | 0.23 | 0.55 |
+| 10 days | 1% | 369 | +5.0% | −66% | 0.08 | 0.31 |
+| 10 days | 2% | 372 | +7.2% | −76% | 0.10 | 0.38 |
 | *Panel B: EMA span of the band* | | | | | | |
-| 10 days | 1% | 730 | +8.0% | −58% | 0.14 | 0.41 |
-| 15 days | 1% | 723 | +10.8% | −54% | 0.20 | 0.49 |
-| 20 days (baseline) | 1% | 710 | +12.4% | −58% | 0.21 | 0.54 |
-| 30 days | 1% | 655 | +14.5% | −53% | 0.27 | 0.62 |
-| 40 days | 1% | 570 | +11.5% | −47% | 0.24 | 0.56 |
+| 10 days | 1% | 373 | +8.0% | −59% | 0.14 | 0.40 |
+| 15 days | 1% | 370 | +7.7% | −70% | 0.11 | 0.39 |
+| 20 days (baseline) | 1% | 361 | +10.9% | −64% | 0.17 | 0.48 |
+| 30 days | 1% | 331 | +13.4% | −47% | 0.29 | 0.58 |
+| 40 days | 1% | 294 | +11.8% | −46% | 0.26 | 0.54 |
 
 Table: Entry parameters.
 Note: Panel B keeps the five-day window. The trend screen is unchanged throughout.
 
 ## Appendix C. Trades
 
-The full list of 710 trades is in `output/trades.csv`. Prices are split- and dividend-adjusted opens; returns are after 10 bp per side.
+The full list of 361 trades is in `output/trades.csv`. Prices are split- and dividend-adjusted opens; returns are after fees and market impact.
 
 {{trades:../output/tables/trades_best.csv | The ten best trades.}}
 

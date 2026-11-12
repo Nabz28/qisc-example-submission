@@ -29,7 +29,7 @@ def scores(strict: bool = False) -> pd.DataFrame:
 
 
 def market(span: int = C.BAND_SPAN, strict: bool = False, liq: float = C.LIQ_QISC) -> tuple[Market, pd.Series]:
-    """The simulation inputs. liq = C.LIQ_QISC for the baseline portfolio, 0 for the concentrated variant."""
+    """The simulation inputs. `liq` is an optional fixed floor on the 60-day median traded value (0 = screen only)."""
     px, bench = D.load_wide(("open", "close", "volume"))
     close, opn, vol = px["close"], px["open"], px["volume"]
     sc = scores(strict).reindex(columns=close.columns, fill_value=0.0)
@@ -84,15 +84,22 @@ def run_all() -> dict:
     R = {"meta": dict(start=str(m.dates[0].date()), end=str(m.dates[-1].date()), stocks=int(m.score.shape[1]),
                       scored_per_day=float((m.score > 0).sum(1).mean()))}
 
-    # 1. the concentrated variant (5 positions, $0.5M, 5 bp): development sample and full sample
-    mo, _ = market(liq=0.0)
-    eq, tr, _, R["conc_dev"] = book(mo, bench, *C.DEV_WINDOW, slots=C.CONC_SLOTS, cost=C.CONC_COST)
-    tr.to_csv(out / "trades_concentrated.csv", index=False)
-    R["conc_full"] = book(mo, bench, slots=C.CONC_SLOTS, cost=C.CONC_COST)[3]
-    del mo
-    log("concentrated variant", f"{R['conc_dev']['cagr']:+.1%}", R["conc_dev"]["trades"], "trades")
+    # 1. the development sample on its own, and a diversified ten-position version (Table 3)
+    eq, tr, _, R["dev_window"] = book(m, bench, *C.DEV_WINDOW)
+    tr.to_csv(out / "trades_dev_window.csv", index=False)
+    R["ten_positions"] = book(m, bench, slots=10)[3]
+    # how the casebook's cost and liquidity rules change the result (Table 4)
+    frac, R["decomposition"] = C.MAX_ADV_FRAC, []
+    for label, f, kw in (("Flat 10 bp per side, no liquidity cap", 1e9, dict(cost=0.001)),
+                         ("Impact costs, no liquidity cap", 1e9, {}),
+                         ("Flat 10 bp per side, orders capped at 5% of ADV", frac, dict(cost=0.001)),
+                         ("Impact costs and 5% of ADV cap (baseline)", frac, {})):
+        C.MAX_ADV_FRAC = f
+        R["decomposition"].append(dict(book(m, bench, **kw)[3], label=label))
+    C.MAX_ADV_FRAC = frac
+    log("development window", f"{R['dev_window']['cagr']:+.1%}", R["dev_window"]["trades"], "trades")
 
-    # 2. the baseline portfolio (QISC-compliant)
+    # 2. the baseline portfolio
     eq, tr, od, R["main"] = book(m, bench)
     eq.to_csv(out / "equity.csv")
     tr.to_csv(out / "trades.csv", index=False)
@@ -128,8 +135,9 @@ def run_all() -> dict:
                   for k in (3, 5, 8, 10, 12, 15, 20)]
     R["hold"] = [dict(book(m, bench, hold=h)[3], H=h, by_period={p: v["ratio"] for p, v in by_period(m, bench, hold=h).items()})
                  for h in (21, 42, 63, 84, 126)]
-    R["costs"] = [dict(book(m, bench, cost=c)[3], cost=c, by_period={p: v["ratio"] for p, v in by_period(m, bench, cost=c).items()})
-                  for c in (0.0005, 0.0010, 0.0020, 0.0030, 0.0050)]
+    R["costs"] = [dict(book(m, bench, cost_mult=c)[3], mult=c,
+                       by_period={p: v["ratio"] for p, v in by_period(m, bench, cost_mult=c).items()})
+                  for c in (0.5, 1.0, 2.0, 3.0, 5.0)]
     log("exits, slots, holding period, costs")
     R["touch"] = []
     for w in (3, 5, 10):

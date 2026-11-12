@@ -50,22 +50,31 @@ def test_touch_signal():
     assert sig[3, 0]                                               # back above the band after the touch
 
 
-def _toy_market(T=200, N=3):
+def _toy_market(T=200, N=3, adv=1e9):
     d = pd.bdate_range("2020-01-01", periods=T)
     px = np.cumprod(1 + np.full((T, N), 0.001), axis=0) * 10
     one = np.ones((T, N), bool)
     return Market(dates=d, cols=pd.Index([f"S{j}" for j in range(N)]), close=px, open=px, vol=np.full((T, N), 1e6),
                   upper=px * 0.99, lower=px * 0.98, vol_med=np.full((T, N), 1e6), prev_close=np.roll(px, 1, 0),
-                  score=np.ones((T, N)), signal=one, trend=one, eligible=one)
+                  score=np.ones((T, N)), signal=one, trend=one, eligible=one,
+                  extra=dict(traded_value=np.full((T, N), adv)))
 
 
 def test_simulator_holds_63_days_and_charges_costs():
     m = _toy_market()
     eq, tr, od = simulate(m, slots=3, cost=0.001, hold=63)
     assert (tr.bars == 63).all()
-    assert np.allclose(tr.ret, tr.sell / tr.buy - 1 - 0.002)
+    assert np.allclose(tr.ret, tr.sell * 0.999 / (tr.buy * 1.001) - 1)
     assert od.weight.max() <= 1 / 3 + 1e-9                        # equity / slots per position
     assert eq.iloc[-1] > 1.0                                       # rising prices, small costs
+
+
+def test_order_capped_at_5pct_of_adv_and_impact_cost():
+    m = _toy_market(adv=1e6)                                       # $1M a day: a $1M book may buy $50k per name
+    eq, tr, od = simulate(m, slots=3, hold=63, capital=1e6)
+    assert od[od.weight > 0].weight.max() <= 0.05 / eq.min() + 1e-9          # $50k on a NAV just below $1M
+    assert (tr.adv_share <= 0.05 + 1e-9).all()
+    assert np.allclose(tr.cost_in.iloc[0], 0.0005 + max(0.0005, 0.01 * np.sqrt(tr.adv_share.iloc[0])))
 
 
 if __name__ == "__main__":                       # also runs without pytest:  python tests/test_signals.py

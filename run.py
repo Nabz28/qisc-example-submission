@@ -36,7 +36,7 @@ def main():
     step(2, "point-in-time trend scores")
     experiments.scores(strict=False)
     experiments.scores(strict=True)
-    step(3, "concentrated variant, baseline portfolio, event study and robustness tests")
+    step(3, "development sample, cost decomposition, baseline portfolio, event study and robustness tests")
     experiments.run_all()
     step(4, "tables, positions.csv, trades.csv, compliance check")
     report.run()

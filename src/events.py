@@ -8,7 +8,7 @@ import config as C
 from src.backtest import Market
 
 
-def events(m: Market, top: int = C.SLOTS, cost: float = C.COST) -> pd.DataFrame:
+def events(m: Market, top: int = C.SLOTS, cost: float = C.EVENT_COST) -> pd.DataFrame:
     """One row per event with net returns r{h} from the next open, and r{h} minus the equal-weighted universe (x{h}).
     touch: first day of a signal episode; no_touch: a top-ranked stock in trend without a touch (buy now)."""
     S, Cl, O, sig, T = m.score, m.close, m.open, m.signal, len(m.dates)

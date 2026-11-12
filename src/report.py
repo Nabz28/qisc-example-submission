@@ -28,15 +28,19 @@ def _save(df: pd.DataFrame, name: str):
 
 def tables(R: dict) -> dict:
     C.TABLES.mkdir(parents=True, exist_ok=True)
-    a, b, c = R["conc_dev"], R["conc_full"], R["main"]
+    a, b, c = R["dev_window"], R["main"], R["ten_positions"]
     r3 = [("Trades", lambda s: s["trades"]), ("Win rate", lambda s: U(s["win"])), ("Growth per year", lambda s: P(s["cagr"])),
           ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])), ("Sharpe ratio (SPY)", lambda s: f"{F(s['sharpe'])} ({F(s['bench_sharpe'])})"),
           ("Worst drawdown (SPY)", lambda s: f"{P(s['maxdd'], 0)} ({P(s['bench_dd'], 0)})"),
           ("Monthly return above SPY [95%]", lambda s: f"{P(s['excess_m'], 2)} {CI(s['excess_ci'])}"),
           ("Cumulative return (SPY)", lambda s: f"{P(s['final'] - 1, 0)} ({P(s['bench_final'] - 1, 0)})")]
     _save(pd.DataFrame([[lab, f(a), f(b), f(c)] for lab, f in r3],
-                       columns=["Measure", "Concentrated, 2017-2026", "Concentrated, 2007-2026", "Baseline, 2007-2026"]),
-          "table3_concentration")
+                       columns=["Measure", "Baseline, 2017-2026", "Baseline, 2007-2026", "Ten positions, 2007-2026"]),
+          "table3_samples")
+    _save(pd.DataFrame([[d["label"], P(d["cagr"]), P(d["maxdd"], 0), F(d["sharpe"]), f"{P(d['excess_m'], 2)} {CI(d['excess_ci'])}"]
+                        for d in R["decomposition"]],
+                       columns=["Cost and liquidity assumptions", "Per year", "Worst drawdown", "Sharpe", "Monthly excess [95%]"]),
+          "table4_costs")
     cols = {"Full sample": R["main"], **{k: R["periods"][k] for k in ("heldout", "dev", "oos")}}
     rows = [("Growth per year (CAGR)", lambda s: P(s["cagr"])), ("S&P 500 growth per year", lambda s: P(s["bench_cagr"])),
             ("Monthly return above SPY", lambda s: P(s["excess_m"], 2)), ("95% interval", lambda s: CI(s["excess_ci"])),
@@ -48,18 +52,18 @@ def tables(R: dict) -> dict:
             ("Average win / average loss", lambda s: f"{P(s['avg_win'])} / {P(s['avg_loss'])}"),
             ("Mean / median trade", lambda s: f"{P(s['mean_trade'])} / {P(s['median_trade'])}")]
     _save(pd.DataFrame([[lab] + [f(s) for s in cols.values()] for lab, f in rows],
-                       columns=["Measure", "Full sample", "Held-out", "Development", "QISC out-of-sample"]), "table4_performance")
+                       columns=["Measure", "Full sample", "Held-out", "Development", "QISC out-of-sample"]), "table5_performance")
     ev = {(e["kind"], e["h"]): e for e in R["events"]}
     _save(pd.DataFrame([[f"{h} days", P(ev["touch", h]["mean"]), f"{P(ev['touch', h]['excess'])} {CI(ev['touch', h]['excess_ci'], 1)}",
                          P(ev["no_touch", h]["mean"]), f"{P(ev['no_touch', h]['excess'])} {CI(ev['no_touch', h]['excess_ci'], 1)}",
                          f"{P(ev['touch_minus_no_touch', h]['mean'])} {CI(ev['touch_minus_no_touch', h]['excess_ci'], 1)}"]
                         for h in (5, 21, 63)],
                        columns=["Horizon", "Touch", "Touch above universe", "No touch", "No touch above universe", "Touch minus no touch"]),
-          "table5_events")
+          "table6_events")
     _save(pd.DataFrame([[s["exit"], s["trades"], U(s["win"]), P(s["cagr"]), P(s["maxdd"], 0), F(s["ratio"]), F(s["sharpe"])] for s in R["exits"]],
                        columns=["Exit", "Trades", "Win rate", "Per year", "Worst drawdown", "CAGR ÷ drawdown", "Sharpe"]), "tableB1_exits")
     sens = []
-    for key, col in (("slots", "K"), ("hold", "H"), ("costs", "cost")):
+    for key, col in (("slots", "K"), ("hold", "H"), ("costs", "mult")):
         for s in R[key]:
             sens.append([key, s[col], s["trades"], P(s["cagr"]), P(s["maxdd"], 0), F(s["sharpe"]), F(s["ratio"])]
                         + [F(s["by_period"][p]) for p in ("heldout", "dev", "oos")])
@@ -76,7 +80,7 @@ def tables(R: dict) -> dict:
                         st("New positions only while SPY > 200-day average", R["regime"]),
                         ["Twelve start months, held-out decade", rng("starts_heldout", "cagr"), rng("starts_heldout", "maxdd"), "", ""],
                         ["Twelve start months, development period", rng("starts_dev", "cagr"), rng("starts_dev", "maxdd"), "", ""]],
-                       columns=["Test", "Per year", "Worst drawdown", "Sharpe", "Monthly excess [95%]"]), "table6_stress")
+                       columns=["Test", "Per year", "Worst drawdown", "Sharpe", "Monthly excess [95%]"]), "table7_stress")
     # deflated Sharpe ratio over every variant reported
     eq = pd.read_csv(C.OUTPUT / "series" / "equity.csv", index_col=0, parse_dates=True).iloc[:, 0]
     r = eq.pct_change().dropna()
@@ -108,14 +112,13 @@ def outputs() -> dict:
     nav = eq.reindex(buys.date).to_numpy() * C.CAPITAL
     adv = np.array([dv.at[d, s] for d, s in zip(buys.date, buys.ticker)])
     share = buys.weight.to_numpy() * nav / adv
-    comp = dict(long_only=bool((od.weight >= 0).all()), max_weight=float(od.weight.max()),
-                max_weight_ok=bool(od.weight.max() <= 0.10 + 1e-9),
-                avg_holding_days=float(tr.bars.mean()), holding_ok=bool(tr.bars.mean() >= 5),
-                execution="signal at close t, fill at open t+1", cost_per_side=C.COST, cost_ok=C.COST >= 0.0010,
-                entries=len(buys), entries_within_5pct_adv=float((share <= 0.05).mean()),
-                entries_within_5pct_adv_nav_below_2m=float((share[nav < 2e6] <= 0.05).mean()),
-                note="Positions are sized on the compounding NAV of a book that starts at $1M. The 5%-of-ADV "
-                     "limit binds increasingly as NAV grows; a live book would raise the liquidity floor with NAV.")
+    comp = dict(long_only=bool((od.weight >= 0).all()), max_weight=float(od.weight.max()), leverage_max=1.0,
+                avg_holding_days=float(tr.bars.mean()), execution="signal at close t, fill at open t+1",
+                cost_model=f"fees {C.FEE:.2%} + max({C.IMPACT_MIN:.2%}, {C.IMPACT_K:.0%} x sqrt(order / ADV)) per side",
+                avg_cost_per_side=float(pd.concat([tr.cost_in, tr.cost_out]).mean()),
+                entries=len(buys), entries_within_5pct_adv=float((share <= 0.0505).mean()),
+                median_order_share_of_adv=float(np.median(share)),
+                note="Each order is capped at 5% of the 60-day median traded value on NAV at the time of the order.")
     json.dump(comp, open(C.OUTPUT / "compliance.json", "w"), indent=1)
     return comp
 

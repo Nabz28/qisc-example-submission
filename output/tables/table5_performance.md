@@ -1,0 +1,19 @@
+| Measure | Full sample | Held-out | Development | QISC out-of-sample |
+|---|---|---|---|---|
+| Growth per year (CAGR) | +10.9% | −0.2% | +19.3% | +28.3% |
+| S&P 500 growth per year | +10.8% | +7.5% | +14.4% | +16.1% |
+| Monthly return above SPY | +0.33% | −0.47% | +0.67% | +1.68% |
+| 95% interval | [−0.73%, +1.38%] | [−1.54%, +0.60%] | [−1.18%, +2.62%] | [−3.68%, +7.36%] |
+| Alpha per year | +3.5% | −5.1% | +7.2% | +23.7% |
+| Cumulative return (SPY) | +686% (+667%) | −2% (+113%) | +274% (+174%) | +59% (+32%) |
+| Volatility per year | 33.0% | 28.0% | 34.3% | 54.5% |
+| Sharpe ratio (SPY) | 0.48 (0.62) | 0.13 (0.45) | 0.68 (0.81) | 0.73 (0.96) |
+| Sortino ratio | 0.65 | 0.17 | 0.97 | 1.12 |
+| Worst drawdown (SPY) | −64% (−55%) | −64% (−55%) | −45% (−34%) | −42% (−19%) |
+| CAGR ÷ max drawdown | 0.17 | −0.00 | 0.43 | 0.68 |
+| Beta | 1.05 | 0.95 | 1.07 | 0.91 |
+| Information ratio | 0.14 | −0.26 | 0.27 | 0.43 |
+| Trades | 361 | 187 | 138 | 31 |
+| Win rate | 52% | 50% | 54% | 55% |
+| Average win / average loss | +28.9% / −18.9% | +17.9% / −18.3% | +30.3% / −19.3% | +52.4% / −23.3% |
+| Mean / median trade | +6.0% / +1.4% | −0.3% / −0.7% | +7.6% / +2.5% | +18.2% / +3.0% |
